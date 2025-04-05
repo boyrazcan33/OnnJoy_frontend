@@ -88,8 +88,24 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
       ),
     );
   }
-
   Widget _buildMatchCard(Map<String, dynamic> match) {
+    // Calculate image number based on therapist ID, plus add the index position
+    // to ensure different therapists get different images
+    String getProfileImage() {
+      // Get a unique identifier for this therapist
+      final String fullName = match['full_name'] as String? ?? 'Therapist';
+      final int nameHash = fullName.hashCode;
+
+      // Combine multiple factors to create more variation
+      final int matchScore = (match['match_score'] is num) ?
+      (match['match_score'] * 100).round() : 0;
+
+      // Use multiple factors to generate the image number
+      final int imageNumber = 1 + ((nameHash + matches.indexOf(match) + matchScore) % 14);
+
+      return 'assets/person/therapist$imageNumber.jpg';
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
@@ -125,8 +141,12 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
             children: [
               CircleAvatar(
                 radius: 30,
-                backgroundImage: NetworkImage(
-                  match['profile_picture_url'] ?? 'https://via.placeholder.com/100',
+                backgroundColor: Colors.teal,
+                backgroundImage: AssetImage(getProfileImage()),
+                onBackgroundImageError: (_, __) {},
+                child: Text(
+                  (match['full_name'] as String? ?? 'T')[0],
+                  style: const TextStyle(fontSize: 24, color: Colors.white),
                 ),
               ),
               const SizedBox(height: 8),

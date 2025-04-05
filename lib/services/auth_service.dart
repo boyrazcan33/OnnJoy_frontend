@@ -51,6 +51,8 @@ class AuthService {
   }
 
   Future<User> _fetchUserWithToken(String token) async {
+    print("Sending request with token: ${token.substring(0, 15)}..."); // Security: only print part
+
     final response = await http.get(
       Uri.parse(UserEndpoints.me),
       headers: {'Authorization': 'Bearer $token'},

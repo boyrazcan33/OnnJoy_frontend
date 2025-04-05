@@ -13,7 +13,7 @@ class Therapist {
 
   factory Therapist.fromJson(Map<String, dynamic> json) {
     return Therapist(
-      id: json['therapist_id'] ?? 0,
+      id: json['therapistId'] ?? 0,
       fullName: json['full_name'] ?? '',
       profilePictureUrl: json['profile_picture_url'] ?? '',
       matchScore: (json['match_score'] as num?)?.toDouble() ?? 0.0,
@@ -22,7 +22,7 @@ class Therapist {
 
   Map<String, dynamic> toJson() {
     return {
-      'therapist_id': id,
+      'therapistId': id,
       'full_name': fullName,
       'profile_picture_url': profilePictureUrl,
       'match_score': matchScore,

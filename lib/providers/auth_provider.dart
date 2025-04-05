@@ -20,6 +20,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user = await _authService.login(email: email, password: password);
       _errorMessage = null;
+      print("Token received and stored: ${_user?.token?.substring(0, 15)}..."); // Only print first 15 chars for security
+
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
