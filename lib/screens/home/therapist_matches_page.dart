@@ -75,6 +75,15 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
             const SizedBox(height: 16),
             if (error != null)
               Text(error!, style: const TextStyle(color: Colors.red)),
+            if (matches.isEmpty && error == null)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Text('No matches found. Please try again later.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
             ...matches.map((match) => _buildMatchCard(match)).toList(),
             const SizedBox(height: 24),
             TextButton(
@@ -88,9 +97,17 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
       ),
     );
   }
+
   Widget _buildMatchCard(Map<String, dynamic> match) {
-    // Calculate image number based on therapist ID, plus add the index position
-    // to ensure different therapists get different images
+    // Make sure the therapist ID exists
+    final therapistId = match['id'] ?? match['therapist_id'] ?? 0;
+
+    // Add therapist ID to the match data if it's not already there
+    if (!match.containsKey('id') && therapistId != 0) {
+      match['id'] = therapistId;
+    }
+
+    // Calculate image number based on therapist data
     String getProfileImage() {
       // Get a unique identifier for this therapist
       final String fullName = match['full_name'] as String? ?? 'Therapist';
@@ -131,7 +148,7 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '${(match['match_score'] * 100).toStringAsFixed(1)}% match',
+                  '${(match['match_score'] is num ? (match['match_score'] * 100).toStringAsFixed(1) : "0")}% match',
                   style: const TextStyle(color: Colors.green, fontSize: 14),
                 ),
               ],
@@ -152,6 +169,13 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
+                  if (match.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("No therapist data available")),
+                    );
+                    return;
+                  }
+
                   Navigator.pushNamed(
                     context,
                     AppRoutes.therapistProfile,

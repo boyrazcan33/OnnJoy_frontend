@@ -59,6 +59,30 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case AppRoutes.matches:
       return MaterialPageRoute(builder: (_) => const TherapistMatchesPage());
     case AppRoutes.therapistProfile:
+    // Handle missing or null arguments for therapist profile
+      if (settings.arguments == null) {
+        return MaterialPageRoute(
+          builder: (BuildContext context) => Scaffold(
+            appBar: AppBar(title: const Text("Error")),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "No therapist data provided",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("Go Back"),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
       return MaterialPageRoute(builder: (_) => const TherapistProfilePage());
     case AppRoutes.therapistCalendar:
       return MaterialPageRoute(builder: (_) => const TherapistCalendarPage());

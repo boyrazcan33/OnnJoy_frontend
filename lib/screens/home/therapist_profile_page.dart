@@ -26,9 +26,17 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
   Future<void> _loadTherapistData() async {
     final Object? arguments = ModalRoute.of(context)?.settings.arguments;
 
+    // Handle null arguments gracefully
+    if (arguments == null) {
+      setState(() {
+        error = 'No therapist data provided. Please go back and try again.';
+        isLoading = false;
+      });
+      return;
+    }
+
     // Check if we received a map with therapist data
     if (arguments is Map<String, dynamic>) {
-      // Use the data directly without making another API call
       setState(() {
         therapistData = arguments;
         isLoading = false;
@@ -58,7 +66,7 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
 
     // Neither a map nor an int was received
     setState(() {
-      error = 'Invalid therapist data';
+      error = 'Invalid therapist data type: ${arguments.runtimeType}';
       isLoading = false;
     });
   }
@@ -72,6 +80,7 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
 
       return 'assets/person/therapist$imageNumber.jpg';
     }
+
     return Scaffold(
       appBar: AppBar(
         title: Image.asset('assets/icons/logo.png', height: 40),
@@ -84,6 +93,7 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
             Text(
               error!,
               style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -104,7 +114,7 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
               CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.teal,
-                backgroundImage: AssetImage(getProfileImage(therapistData!['id'] ?? 0)),
+                backgroundImage: AssetImage(getProfileImage(therapistData!)),
                 onBackgroundImageError: (_, __) {},
                 child: Text(
                   (therapistData!['full_name'] as String? ?? 'T')[0],
