@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
 
+import '../../providers/therapist_provider.dart'; // Import the provider
 import '../../utils/api_endpoints.dart';
-import '../../app_router.dart'; // for AppRoutes constant
+import '../../app_router.dart';
 
 class TherapistCalendarPage extends StatefulWidget {
   const TherapistCalendarPage({Key? key}) : super(key: key);
@@ -17,38 +19,72 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
   List<DateTime> availableDates = [];
   DateTime? selectedDate;
   bool isLoading = true;
+  String? error;
 
-  late int therapistId;
+  int? therapistId;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments as int?;
+
+    // First, try to get therapist ID from route arguments
+    final args = ModalRoute.of(context)?.settings.arguments;
+
     if (args != null) {
-      therapistId = args;
-      _fetchAvailability();
+      // Handle different argument types
+      if (args is int) {
+        therapistId = args;
+      } else if (args is String) {
+        therapistId = int.tryParse(args);
+      } else if (args is Map<String, dynamic> && args.containsKey('id')) {
+        therapistId = args['id'];
+      }
+    }
+
+    // If no ID from arguments, try to get from provider
+    if (therapistId == null) {
+      final therapistProvider = Provider.of<TherapistProvider>(context, listen: false);
+      final therapistData = therapistProvider.selectedTherapist;
+
+      if (therapistData != null && therapistData.containsKey('id')) {
+        therapistId = therapistData['id'];
+      }
+    }
+
+    // If we have an ID, fetch availability
+    if (therapistId != null) {
+      _fetchAvailability(therapistId!);
+    } else {
+      setState(() {
+        isLoading = false;
+        error = 'No therapist ID available. Please go back and try again.';
+      });
     }
   }
 
-  Future<void> _fetchAvailability() async {
-    final url = '${AvailabilityEndpoints.byTherapist}/$therapistId';
+  Future<void> _fetchAvailability(int id) async {
     try {
-      final res = await http.get(Uri.parse(url));
+      final response = await http.get(
+          Uri.parse(AvailabilityEndpoints.byTherapist(id))
+      );
 
-      if (res.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(res.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
         setState(() {
           availableDates = data.map((d) => DateTime.parse(d)).toList();
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to fetch availability');
+        setState(() {
+          isLoading = false;
+          error = 'Failed to load availability: ${response.statusCode}';
+        });
       }
     } catch (e) {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      setState(() {
+        isLoading = false;
+        error = 'Error: $e';
+      });
     }
   }
 
@@ -73,6 +109,24 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
+          : error != null
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              error!,
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Go Back'),
+            ),
+          ],
+        ),
+      )
           : SafeArea(
         child: Column(
           children: [
@@ -131,7 +185,7 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   ElevatedButton(
-                    onPressed: selectedDate != null
+                    onPressed: selectedDate != null && therapistId != null
                         ? () {
                       Navigator.pushNamed(
                         context,

@@ -83,7 +83,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           ),
         );
       }
-      return MaterialPageRoute(builder: (_) => const TherapistProfilePage());
+      // CHANGED: Removed 'const' keyword to allow arguments to be passed
+      return MaterialPageRoute(builder: (_) => TherapistProfilePage());
     case AppRoutes.therapistCalendar:
       return MaterialPageRoute(builder: (_) => const TherapistCalendarPage());
     case AppRoutes.packages:

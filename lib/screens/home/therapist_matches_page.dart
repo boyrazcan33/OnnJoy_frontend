@@ -19,7 +19,14 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   bool isLoading = true;
   String? error;
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchMatches();
+  }
+
   Future<void> _fetchMatches() async {
+    debugPrint("Fetching matches...");
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     try {
@@ -28,18 +35,24 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
         headers: {'Authorization': 'Bearer ${auth.token}'},
       );
 
+      debugPrint("Match response status: ${response.statusCode}");
       if (response.statusCode == 200) {
+        final matchesData = jsonDecode(response.body);
+        debugPrint("Received matches: $matchesData");
+
         setState(() {
-          matches = jsonDecode(response.body);
+          matches = matchesData;
           isLoading = false;
         });
       } else {
+        debugPrint("Error fetching matches: ${response.body}");
         setState(() {
-          error = 'Failed to load matches.';
+          error = 'Failed to load matches: ${response.statusCode}';
           isLoading = false;
         });
       }
     } catch (e) {
+      debugPrint("Exception fetching matches: $e");
       setState(() {
         error = 'Error occurred: $e';
         isLoading = false;
@@ -47,10 +60,14 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchMatches();
+  void _viewTherapistBio(Map<String, dynamic> match) {
+    // No need to extract any ID or rank
+    // Pass the entire match data to the profile page
+    Navigator.pushNamed(
+      context,
+      AppRoutes.therapistProfile,
+      arguments: match, // Pass the complete match data
+    );
   }
 
   @override
@@ -84,8 +101,13 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
                   ),
                 ),
               ),
-            ...matches.map((match) => _buildMatchCard(match)).toList(),
-            const SizedBox(height: 24),
+            Expanded(
+              child: ListView.builder(
+                itemCount: matches.length,
+                itemBuilder: (context, index) => _buildMatchCard(matches[index]),
+              ),
+            ),
+            const SizedBox(height: 16),
             TextButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, AppRoutes.entry);
@@ -99,27 +121,14 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   }
 
   Widget _buildMatchCard(Map<String, dynamic> match) {
-    // Make sure the therapist ID exists
-    final therapistId = match['id'] ?? match['therapist_id'] ?? 0;
-
-    // Add therapist ID to the match data if it's not already there
-    if (!match.containsKey('id') && therapistId != 0) {
-      match['id'] = therapistId;
-    }
-
     // Calculate image number based on therapist data
     String getProfileImage() {
-      // Get a unique identifier for this therapist
       final String fullName = match['full_name'] as String? ?? 'Therapist';
       final int nameHash = fullName.hashCode;
-
-      // Combine multiple factors to create more variation
-      final int matchScore = (match['match_score'] is num) ?
-      (match['match_score'] * 100).round() : 0;
-
-      // Use multiple factors to generate the image number
-      final int imageNumber = 1 + ((nameHash + matches.indexOf(match) + matchScore) % 14);
-
+      final int matchScore = (match['match_score'] is num)
+          ? (match['match_score'] * 100).round()
+          : 0;
+      final int imageNumber = 1 + ((nameHash + matchScore) % 14);
       return 'assets/person/therapist$imageNumber.jpg';
     }
 
@@ -168,20 +177,7 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
               ),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () {
-                  if (match.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("No therapist data available")),
-                    );
-                    return;
-                  }
-
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.therapistProfile,
-                    arguments: match,
-                  );
-                },
+                onPressed: () => _viewTherapistBio(match),
                 child: const Text('Read Bio'),
               ),
             ],

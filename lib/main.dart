@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
+import 'providers/therapist_provider.dart'; // Add this import
 import 'utils/constants.dart';
 import 'app_router.dart';
 
@@ -17,7 +18,8 @@ class OnnJoyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        // Diğer provider'lar buraya eklenebilir (EntryProvider, MatchProvider vs.)
+        ChangeNotifierProvider(create: (_) => TherapistProvider()), // Add this provider
+        // Other providers can be added here
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
