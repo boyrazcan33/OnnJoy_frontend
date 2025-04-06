@@ -28,7 +28,7 @@ class _WhatIsOnnJoyPageState extends State<WhatIsOnnJoyPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background/welcome-background.jpg'),
+            image: AssetImage('assets/background/welcome-background.png'),
             fit: BoxFit.cover,
           ),
         ),

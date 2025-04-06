@@ -26,7 +26,7 @@ class _LanguageChoicePageState extends State<LanguageChoicePage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background/calm-background.jpg'),
+            image: AssetImage('assets/background/calm-background.png'),
             fit: BoxFit.cover,
           ),
         ),
