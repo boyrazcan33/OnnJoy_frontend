@@ -134,18 +134,11 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
               style: TextStyle(fontSize: 13, color: Colors.black54),
             ),
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Image.asset('assets/icons/step-backward.png', height: 28),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                ElevatedButton(
-                  onPressed: selectedPackage != null ? _confirmPurchase : null,
-                  child: const Text('Purchase'),
-                ),
-              ],
+            Center(
+              child: ElevatedButton(
+                onPressed: selectedPackage != null ? _confirmPurchase : null,
+                child: const Text('Purchase'),
+              ),
             )
           ],
         ),

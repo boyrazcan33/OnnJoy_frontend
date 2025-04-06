@@ -232,12 +232,8 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  IconButton(
-                    icon: Image.asset('assets/icons/step-backward.png', height: 28),
-                    onPressed: () => Navigator.pop(context),
-                  ),
                   ElevatedButton(
                     onPressed: selectedDate != null && therapistId != null
                         ? () {

@@ -179,16 +179,19 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
     }
   }
 
+  // Helper function to get profile image - Using the same logic as TherapistMatchesPage
+  String getProfileImage(Map<String, dynamic> data) {
+    final String fullName = data['full_name'] as String? ?? 'Therapist';
+    final int nameHash = fullName.hashCode;
+    final int matchScore = (data['match_score'] is num)
+        ? (data['match_score'] * 100).round()
+        : 0;
+    final int imageNumber = 1 + ((nameHash + matchScore) % 14);
+    return 'assets/person/therapist$imageNumber.jpg';
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Helper function to get profile image
-    String getProfileImage(Map<String, dynamic> data) {
-      final String fullName = data['full_name'] as String? ?? 'Therapist';
-      final int nameHash = fullName.hashCode.abs();
-      final int imageNumber = 1 + (nameHash % 14);
-      return 'assets/person/therapist$imageNumber.jpg';
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Image.asset('assets/icons/logo.png', height: 40),
@@ -216,200 +219,172 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
         ),
       )
           : SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 16),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 16),
 
-              // Profile picture
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.teal,
-                backgroundImage: therapistData != null
-                    ? AssetImage(getProfileImage(therapistData!))
-                    : null,
-                onBackgroundImageError: (_, __) {},
-                child: Text(
-                  therapistData != null
-                      ? (therapistData!['full_name'] as String? ?? 'T')[0]
-                      : 'T',
-                  style: const TextStyle(fontSize: 36, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Name
-              Text(
-                therapistData?['full_name'] ?? 'Therapist',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              // Show loading message if we're still fetching full details
-              if (isLoading)
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
+                // Profile picture
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.teal,
+                  backgroundImage: therapistData != null
+                      ? AssetImage(getProfileImage(therapistData!))
+                      : null,
+                  onBackgroundImageError: (_, __) {},
                   child: Text(
-                    'Loading complete details...',
-                    style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                    therapistData != null
+                        ? (therapistData!['full_name'] as String? ?? 'T')[0]
+                        : 'T',
+                    style: const TextStyle(fontSize: 36, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Name
+                Text(
+                  therapistData?['full_name'] ?? 'Therapist',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
-              // Show error if there was a problem getting full details
-              if (error != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    error!,
-                    style: const TextStyle(color: Colors.orange),
+                // Show loading message if we're still fetching full details
+                if (isLoading)
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Loading complete details...',
+                      style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                    ),
                   ),
+
+                // Show error if there was a problem getting full details
+                if (error != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      error!,
+                      style: const TextStyle(color: Colors.orange),
+                    ),
+                  ),
+
+                const SizedBox(height: 16),
+
+                // Book slot button
+                ElevatedButton(
+                  onPressed: () {
+                    // Get the therapist ID to pass to the calendar page
+                    int? therapistId;
+
+                    // Try all possible sources of the ID
+                    if (therapistData?.containsKey('therapist_id') ?? false) {
+                      final dynamic rawId = therapistData!['therapist_id'];
+                      if (rawId is int) {
+                        therapistId = rawId;
+                      } else if (rawId is String) {
+                        therapistId = int.tryParse(rawId);
+                      }
+                    } else if (therapistData?.containsKey('id') ?? false) {
+                      final dynamic rawId = therapistData!['id'];
+                      if (rawId is int) {
+                        therapistId = rawId;
+                      } else if (rawId is String) {
+                        therapistId = int.tryParse(rawId);
+                      }
+                    } else if (matchData?.containsKey('rank') ?? false) {
+                      final dynamic rawRank = matchData!['rank'];
+                      if (rawRank is int) {
+                        therapistId = rawRank;
+                      } else if (rawRank is String) {
+                        therapistId = int.tryParse(rawRank);
+                      }
+                    }
+
+                    if (therapistId != null) {
+                      DebugLogger.log("Navigating to calendar with ID: $therapistId", tag: "TherapistProfile");
+
+                      // Direct push with MaterialPageRoute to ensure args are passed
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TherapistCalendarPage(),
+                          settings: RouteSettings(arguments: therapistId),
+                        ),
+                      );
+                    } else {
+                      DebugLogger.logMap("Cannot book: Missing therapist identifier",
+                          therapistData ?? {'error': 'No data available'},
+                          tag: "TherapistProfile",
+                          important: true);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Cannot book: Missing therapist identifier'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Book a Slot'),
                 ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-              // Book slot button
-              ElevatedButton(
-                onPressed: () {
-                  // Get the therapist ID to pass to the calendar page
-                  int? therapistId;
-
-                  // Try all possible sources of the ID
-                  if (therapistData?.containsKey('therapist_id') ?? false) {
-                    final dynamic rawId = therapistData!['therapist_id'];
-                    if (rawId is int) {
-                      therapistId = rawId;
-                    } else if (rawId is String) {
-                      therapistId = int.tryParse(rawId);
-                    }
-                  } else if (therapistData?.containsKey('id') ?? false) {
-                    final dynamic rawId = therapistData!['id'];
-                    if (rawId is int) {
-                      therapistId = rawId;
-                    } else if (rawId is String) {
-                      therapistId = int.tryParse(rawId);
-                    }
-                  } else if (matchData?.containsKey('rank') ?? false) {
-                    final dynamic rawRank = matchData!['rank'];
-                    if (rawRank is int) {
-                      therapistId = rawRank;
-                    } else if (rawRank is String) {
-                      therapistId = int.tryParse(rawRank);
-                    }
-                  }
-
-                  if (therapistId != null) {
-                    DebugLogger.log("Navigating to calendar with ID: $therapistId", tag: "TherapistProfile");
-
-                    // Direct push with MaterialPageRoute to ensure args are passed
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const TherapistCalendarPage(),
-                        settings: RouteSettings(arguments: therapistId),
-                      ),
-                    );
-                  } else {
-                    DebugLogger.logMap("Cannot book: Missing therapist identifier",
-                        therapistData ?? {'error': 'No data available'},
-                        tag: "TherapistProfile",
-                        important: true);
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Cannot book: Missing therapist identifier'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Book a Slot'),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Bio section
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'About the Therapist',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        therapistData?['bio'] ?? 'Loading bio...',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-
-                      // Show match score if available
-                      if (therapistData?['match_score'] != null) ...[
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Match Score',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${(therapistData!['match_score'] is num ? (therapistData!['match_score'] * 100).toStringAsFixed(1) : "0")}% match with your needs',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ],
-
-                      // Debug info section - helpful during development
-                      // Uncomment this for debugging
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                // Bio section
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
                         children: [
-                          const SizedBox(height: 20),
                           const Text(
-                            '⚙️ Debug Info (Remove in Production)',
+                            'About the Therapist',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 16),
                           Text(
-                            'Therapist ID: ${therapistData?['id'] ?? 'N/A'}\n'
-                                'Therapist ID (alt): ${therapistData?['therapist_id'] ?? 'N/A'}\n'
-                                'Rank: ${matchData?['rank'] ?? 'N/A'}\n'
-                                'Data Keys: ${therapistData?.keys.toList() ?? 'N/A'}',
-                            style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Colors.grey),
+                            therapistData?['bio'] ?? 'Loading bio...',
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
                           ),
+
+                          // Show match score if available
+                          if (therapistData?['match_score'] != null) ...[
+                            const SizedBox(height: 24),
+                            const Text(
+                              'Match Score',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${(therapistData!['match_score'] is num ? (therapistData!['match_score'] * 100).toStringAsFixed(1) : "0")}% match with your needs',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.green,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Back button
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: IconButton(
-                  icon: Image.asset('assets/icons/step-backward.png', height: 28),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),

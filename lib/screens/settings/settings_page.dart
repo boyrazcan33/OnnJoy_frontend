@@ -65,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: const Text("Account Settings"),
         leading: IconButton(
-          icon: Image.asset('assets/icons/step-backward.png', height: 24),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
       ),

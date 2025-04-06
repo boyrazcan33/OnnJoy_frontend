@@ -51,13 +51,52 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> _markAllRead() async {
-    final unread = notifications.where((n) => n['read'] == false);
-    final futures = unread.map(
-          (n) => http.post(Uri.parse(NotificationEndpoints.markRead(n['id']))),
-    );
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final unread = notifications.where((n) => n['read'] == false).toList();
 
-    await Future.wait(futures);
-    _fetchNotifications();
+    if (unread.isEmpty) {
+      // No unread notifications to mark
+      return;
+    }
+
+    // Show loading indicator
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // Create a list of futures for each mark-as-read request
+      final futures = unread.map(
+            (n) => http.post(
+          Uri.parse(NotificationEndpoints.markRead(n['id'])),
+          headers: {'Authorization': 'Bearer ${auth.token}'},
+        ),
+      );
+
+      // Wait for all requests to complete
+      await Future.wait(futures);
+
+      // Update the notification list in the state
+      setState(() {
+        // Update the 'read' status of all notifications to true
+        notifications = notifications.map((n) {
+          return {...n, 'read': true};
+        }).toList();
+
+        // Update the count of unread notifications
+        newCount = 0;
+      });
+    } catch (e) {
+      debugPrint('Mark all read error: $e');
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to mark notifications as read: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void _savePreSessionMessage() {
@@ -138,15 +177,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ElevatedButton(
               onPressed: _handleJoinAppointment,
               child: const Text('Join Appointment'),
-            ),
-            const SizedBox(height: 8),
-
-            Align(
-              alignment: Alignment.bottomRight,
-              child: IconButton(
-                icon: Image.asset('assets/icons/step-backward.png', height: 28),
-                onPressed: () => Navigator.pop(context),
-              ),
             ),
           ],
         ),
