@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 
-import '../../providers/therapist_provider.dart'; // Import the provider
+import '../../providers/therapist_provider.dart';
+import '../../providers/auth_provider.dart'; // Added auth provider import
 import '../../utils/api_endpoints.dart';
 import '../../app_router.dart';
 
@@ -64,23 +65,76 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
 
   Future<void> _fetchAvailability(int id) async {
     try {
+      // Get the auth token from your provider
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final token = auth.token;
+
+      if (token == null) {
+        setState(() {
+          isLoading = false;
+          error = 'Authentication token not found. Please log in again.';
+        });
+        return;
+      }
+
+      // Include the token in your request headers
       final response = await http.get(
-          Uri.parse(AvailabilityEndpoints.byTherapist(id))
+          Uri.parse(AvailabilityEndpoints.byTherapist(id)),
+          headers: {
+            'Authorization': 'Bearer $token',
+          }
       );
+
+      print("Availability response status: ${response.statusCode}");
+      print("Availability response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          availableDates = data.map((d) => DateTime.parse(d)).toList();
-          isLoading = false;
-        });
+        print("Parsed data: $data");
+
+        try {
+          List<DateTime> parsedDates = [];
+
+          for (var dateStr in data) {
+            try {
+              // Handle possible formats and clean the string
+              String cleanDateStr = dateStr.toString().trim();
+              print("Parsing date: $cleanDateStr");
+
+              // Try parsing with DateTime.parse which handles ISO format
+              DateTime parsedDate = DateTime.parse(cleanDateStr);
+              parsedDates.add(parsedDate);
+            } catch (e) {
+              print("Error parsing individual date '$dateStr': $e");
+              // Continue with other dates even if one fails
+            }
+          }
+
+          setState(() {
+            availableDates = parsedDates;
+            isLoading = false;
+
+            if (parsedDates.isEmpty && data.isNotEmpty) {
+              error = 'Could not parse any dates from the response';
+            }
+          });
+
+          print("Successfully parsed ${parsedDates.length} dates");
+        } catch (parseError) {
+          print("Date parsing error: $parseError");
+          setState(() {
+            isLoading = false;
+            error = 'Error parsing dates: $parseError';
+          });
+        }
       } else {
         setState(() {
           isLoading = false;
-          error = 'Failed to load availability: ${response.statusCode}';
+          error = 'Failed to load availability: ${response.statusCode} - ${response.body}';
         });
       }
     } catch (e) {
+      print("Exception in _fetchAvailability: $e");
       setState(() {
         isLoading = false;
         error = 'Error: $e';
