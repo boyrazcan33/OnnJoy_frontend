@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/api_endpoints.dart';
 import '../../app_router.dart';
+import '../../utils/debug_utils.dart';
+import '../home/therapist_profile_page.dart';  // Direct import for navigation
 
 class TherapistMatchesPage extends StatefulWidget {
   const TherapistMatchesPage({Key? key}) : super(key: key);
@@ -26,7 +28,7 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   }
 
   Future<void> _fetchMatches() async {
-    debugPrint("Fetching matches...");
+    DebugLogger.log("Fetching matches...", tag: "TherapistMatches");
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     try {
@@ -35,24 +37,24 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
         headers: {'Authorization': 'Bearer ${auth.token}'},
       );
 
-      debugPrint("Match response status: ${response.statusCode}");
+      DebugLogger.log("Match response status: ${response.statusCode}", tag: "TherapistMatches");
       if (response.statusCode == 200) {
         final matchesData = jsonDecode(response.body);
-        debugPrint("Received matches: $matchesData");
+        DebugLogger.logObject("Received matches", matchesData, tag: "TherapistMatches");
 
         setState(() {
           matches = matchesData;
           isLoading = false;
         });
       } else {
-        debugPrint("Error fetching matches: ${response.body}");
+        DebugLogger.log("Error fetching matches: ${response.body}", tag: "TherapistMatches", important: true);
         setState(() {
           error = 'Failed to load matches: ${response.statusCode}';
           isLoading = false;
         });
       }
     } catch (e) {
-      debugPrint("Exception fetching matches: $e");
+      DebugLogger.logError("Exception fetching matches", e, StackTrace.current, tag: "TherapistMatches");
       setState(() {
         error = 'Error occurred: $e';
         isLoading = false;
@@ -61,13 +63,37 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   }
 
   void _viewTherapistBio(Map<String, dynamic> match) {
-    // No need to extract any ID or rank
-    // Pass the entire match data to the profile page
+    // Log the match data to verify it contains the needed information
+    DebugLogger.logMap("Viewing therapist bio for", match, tag: "TherapistMatches");
+
+    // OPTION 1: Use direct navigation with MaterialPageRoute (recommended)
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TherapistProfilePage(),
+        settings: RouteSettings(arguments: match),
+      ),
+    );
+
+    // OPTION 2: If the above doesn't work, try this alternative
+    /*
+    // Deep copy the match data to prevent reference issues
+    final Map<String, dynamic> therapistData = Map<String, dynamic>.from(match);
+
+    // Make sure these key parameters exist and are correct
+    if (!therapistData.containsKey('therapist_id') && therapistData.containsKey('id')) {
+      therapistData['therapist_id'] = therapistData['id'];
+    } else if (!therapistData.containsKey('therapist_id') && therapistData.containsKey('rank')) {
+      // Only as a fallback
+      therapistData['therapist_id'] = therapistData['rank'];
+    }
+
     Navigator.pushNamed(
       context,
       AppRoutes.therapistProfile,
-      arguments: match, // Pass the complete match data
+      arguments: therapistData,
     );
+    */
   }
 
   @override
@@ -160,6 +186,11 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
                   '${(match['match_score'] is num ? (match['match_score'] * 100).toStringAsFixed(1) : "0")}% match',
                   style: const TextStyle(color: Colors.green, fontSize: 14),
                 ),
+                // Uncomment for debugging
+                // Text(
+                //   'ID: ${match['therapist_id']}',
+                //   style: const TextStyle(fontSize: 12, color: Colors.grey),
+                // ),
               ],
             ),
           ),

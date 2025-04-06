@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onnjoy_frontend/screens/home/therapist_calendar_page.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,6 +7,7 @@ import 'dart:convert';
 import '../../app_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/api_endpoints.dart';
+import '../../utils/debug_utils.dart';
 
 class TherapistProfilePage extends StatefulWidget {
   const TherapistProfilePage({Key? key}) : super(key: key);
@@ -32,11 +34,13 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
   void _processArguments() {
     // Get match data from route arguments
     final arguments = ModalRoute.of(context)?.settings.arguments;
-    debugPrint("TherapistProfilePage: Received arguments: $arguments");
+    DebugLogger.log("TherapistProfilePage: Received arguments type: ${arguments.runtimeType}", tag: "TherapistProfile");
+    DebugLogger.log("TherapistProfilePage: Received arguments: $arguments", tag: "TherapistProfile");
 
     if (arguments is Map<String, dynamic>) {
       // Store the match data for displaying basic info immediately
-      matchData = arguments;
+      matchData = Map<String, dynamic>.from(arguments);
+      DebugLogger.logMap("TherapistProfilePage: Valid match data received", matchData!, tag: "TherapistProfile");
 
       // Update UI with the match data while we fetch full details
       setState(() {
@@ -47,6 +51,7 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
       // Then fetch full therapist details from API
       _fetchFullTherapistDetails();
     } else {
+      DebugLogger.log("TherapistProfilePage: Invalid arguments received: $arguments", tag: "TherapistProfile", important: true);
       setState(() {
         error = 'Invalid data received. Please go back and try again.';
         isLoading = false;
@@ -56,7 +61,10 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
 
   // Fetch complete therapist details from the API
   Future<void> _fetchFullTherapistDetails() async {
-    if (matchData == null) return;
+    if (matchData == null) {
+      DebugLogger.log("TherapistProfilePage: No match data to fetch details from", tag: "TherapistProfile", important: true);
+      return;
+    }
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final token = auth.token;
@@ -73,10 +81,38 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
     });
 
     try {
-      // Use the therapist_id or rank from the match data to fetch full details
-      final therapistId = matchData!['therapist_id'] ?? matchData!['rank'];
+      // First try to use therapist_id directly
+      int? therapistId;
+
+      // Try every possible way to get the therapist ID
+      if (matchData!.containsKey('therapist_id')) {
+        final dynamic rawId = matchData!['therapist_id'];
+        if (rawId is int) {
+          therapistId = rawId;
+        } else if (rawId is String) {
+          therapistId = int.tryParse(rawId);
+        }
+        DebugLogger.log("Found therapist_id: $therapistId", tag: "TherapistProfile");
+      } else if (matchData!.containsKey('id')) {
+        final dynamic rawId = matchData!['id'];
+        if (rawId is int) {
+          therapistId = rawId;
+        } else if (rawId is String) {
+          therapistId = int.tryParse(rawId);
+        }
+        DebugLogger.log("Found id: $therapistId", tag: "TherapistProfile");
+      } else if (matchData!.containsKey('rank')) {
+        final dynamic rawRank = matchData!['rank'];
+        if (rawRank is int) {
+          therapistId = rawRank;
+        } else if (rawRank is String) {
+          therapistId = int.tryParse(rawRank);
+        }
+        DebugLogger.log("Using rank as fallback: $therapistId", tag: "TherapistProfile");
+      }
 
       if (therapistId == null) {
+        DebugLogger.logMap("Cannot extract therapist ID from data", matchData!, tag: "TherapistProfile", important: true);
         setState(() {
           error = 'No therapist identifier found in the match data.';
           isLoading = false;
@@ -84,27 +120,42 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
         return;
       }
 
-      debugPrint("Fetching full therapist details using identifier: $therapistId");
+      DebugLogger.log("Fetching full therapist details using ID: $therapistId", tag: "TherapistProfile");
+
+      final url = TherapistEndpoints.getTherapistDetails(therapistId);
+      DebugLogger.log("API URL: $url", tag: "TherapistProfile");
 
       final response = await http.get(
-        Uri.parse(TherapistEndpoints.getTherapistDetails(therapistId)),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
       );
 
-      debugPrint("Therapist API response: ${response.statusCode}");
+      DebugLogger.log("Therapist API response status: ${response.statusCode}", tag: "TherapistProfile");
+      DebugLogger.log("Therapist API response body: ${response.body}", tag: "TherapistProfile");
 
       if (response.statusCode == 200) {
         final fullData = jsonDecode(response.body);
-        debugPrint("Full therapist data received: $fullData");
+        DebugLogger.logMap("Full therapist data received", fullData, tag: "TherapistProfile");
 
         // Combine the match data (for match score) with the full details
         final Map<String, dynamic> combinedData = Map<String, dynamic>.from(fullData);
+
         // Make sure to keep the match score from the original match data
         if (matchData!.containsKey('match_score')) {
           combinedData['match_score'] = matchData!['match_score'];
+        }
+
+        // Ensure the therapist_id is set in combined data
+        if (!combinedData.containsKey('id') && therapistId != null) {
+          combinedData['id'] = therapistId;
+        }
+
+        // If not already present, also set therapist_id separately
+        if (!combinedData.containsKey('therapist_id') && therapistId != null) {
+          combinedData['therapist_id'] = therapistId;
         }
 
         setState(() {
@@ -112,15 +163,15 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
           isLoading = false;
         });
       } else {
-        debugPrint("Error response: ${response.body}");
+        DebugLogger.log("Error response: ${response.body}", tag: "TherapistProfile", important: true);
         // In case of error, keep using the match data but show an error message
         setState(() {
-          error = 'Could not fetch complete therapist details.';
+          error = 'Could not fetch complete therapist details. Status: ${response.statusCode}';
           isLoading = false;
         });
       }
-    } catch (e) {
-      debugPrint("Exception fetching therapist details: $e");
+    } catch (e, stackTrace) {
+      DebugLogger.logError("Exception fetching therapist details", e, stackTrace, tag: "TherapistProfile");
       setState(() {
         error = 'Error: $e';
         isLoading = false;
@@ -223,19 +274,50 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
               // Book slot button
               ElevatedButton(
                 onPressed: () {
-                  // For calendar navigation, use any identifier available
-                  final id = therapistData?['id'] ??
-                      therapistData?['therapist_id'] ??
-                      matchData?['rank'];
+                  // Get the therapist ID to pass to the calendar page
+                  int? therapistId;
 
-                  if (id != null) {
-                    debugPrint("Navigating to calendar with ID: $id");
-                    Navigator.pushNamed(
+                  // Try all possible sources of the ID
+                  if (therapistData?.containsKey('therapist_id') ?? false) {
+                    final dynamic rawId = therapistData!['therapist_id'];
+                    if (rawId is int) {
+                      therapistId = rawId;
+                    } else if (rawId is String) {
+                      therapistId = int.tryParse(rawId);
+                    }
+                  } else if (therapistData?.containsKey('id') ?? false) {
+                    final dynamic rawId = therapistData!['id'];
+                    if (rawId is int) {
+                      therapistId = rawId;
+                    } else if (rawId is String) {
+                      therapistId = int.tryParse(rawId);
+                    }
+                  } else if (matchData?.containsKey('rank') ?? false) {
+                    final dynamic rawRank = matchData!['rank'];
+                    if (rawRank is int) {
+                      therapistId = rawRank;
+                    } else if (rawRank is String) {
+                      therapistId = int.tryParse(rawRank);
+                    }
+                  }
+
+                  if (therapistId != null) {
+                    DebugLogger.log("Navigating to calendar with ID: $therapistId", tag: "TherapistProfile");
+
+                    // Direct push with MaterialPageRoute to ensure args are passed
+                    Navigator.push(
                       context,
-                      AppRoutes.therapistCalendar,
-                      arguments: id,
+                      MaterialPageRoute(
+                        builder: (context) => const TherapistCalendarPage(),
+                        settings: RouteSettings(arguments: therapistId),
+                      ),
                     );
                   } else {
+                    DebugLogger.logMap("Cannot book: Missing therapist identifier",
+                        therapistData ?? {'error': 'No data available'},
+                        tag: "TherapistProfile",
+                        important: true);
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Cannot book: Missing therapist identifier'),
@@ -287,6 +369,31 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
                           ),
                         ),
                       ],
+
+                      // Debug info section - helpful during development
+                      // Uncomment this for debugging
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 20),
+                          const Text(
+                            '⚙️ Debug Info (Remove in Production)',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Therapist ID: ${therapistData?['id'] ?? 'N/A'}\n'
+                                'Therapist ID (alt): ${therapistData?['therapist_id'] ?? 'N/A'}\n'
+                                'Rank: ${matchData?['rank'] ?? 'N/A'}\n'
+                                'Data Keys: ${therapistData?.keys.toList() ?? 'N/A'}',
+                            style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Colors.grey),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

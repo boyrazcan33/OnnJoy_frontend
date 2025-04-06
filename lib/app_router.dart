@@ -39,6 +39,8 @@ class AppRoutes {
 }
 
 Route<dynamic> generateRoute(RouteSettings settings) {
+  debugPrint('Generating route for: ${settings.name} with arguments: ${settings.arguments}');
+
   switch (settings.name) {
     case AppRoutes.whatIsOnnJoy:
       return MaterialPageRoute(builder: (_) => const WhatIsOnnJoyPage());
@@ -59,38 +61,28 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case AppRoutes.matches:
       return MaterialPageRoute(builder: (_) => const TherapistMatchesPage());
     case AppRoutes.therapistProfile:
-    // Handle missing or null arguments for therapist profile
-      if (settings.arguments == null) {
-        return MaterialPageRoute(
-          builder: (BuildContext context) => Scaffold(
-            appBar: AppBar(title: const Text("Error")),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "No therapist data provided",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text("Go Back"),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-      // CHANGED: Removed 'const' keyword to allow arguments to be passed
-      return MaterialPageRoute(builder: (_) => TherapistProfilePage());
+    // Handle the therapist profile route differently to preserve arguments
+      return MaterialPageRoute(
+        settings: settings, // Pass the original settings to preserve arguments
+        builder: (BuildContext context) {
+          return TherapistProfilePage();
+        },
+      );
     case AppRoutes.therapistCalendar:
-      return MaterialPageRoute(builder: (_) => const TherapistCalendarPage());
+      return MaterialPageRoute(
+        settings: settings, // Preserve arguments
+        builder: (_) => const TherapistCalendarPage(),
+      );
     case AppRoutes.packages:
-      return MaterialPageRoute(builder: (_) => const PackageSelectionPage());
+      return MaterialPageRoute(
+        settings: settings, // Preserve arguments
+        builder: (_) => const PackageSelectionPage(),
+      );
     case AppRoutes.payment:
-      return MaterialPageRoute(builder: (_) => const PaymentCheckoutPage());
+      return MaterialPageRoute(
+        settings: settings, // Preserve arguments
+        builder: (_) => const PaymentCheckoutPage(),
+      );
     case AppRoutes.appointments:
       return MaterialPageRoute(builder: (_) => const UserAppointmentsPage());
     case AppRoutes.videoCall:

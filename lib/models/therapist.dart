@@ -12,8 +12,11 @@ class Therapist {
   });
 
   factory Therapist.fromJson(Map<String, dynamic> json) {
+    // Try to get the ID from various possible fields
+    final int therapistId = json['therapist_id'] ?? json['id'] ?? 0;
+
     return Therapist(
-      id: json['id'] ?? json['therapistId'] ?? 0,  // Accept either key format
+      id: therapistId,
       fullName: json['full_name'] ?? '',
       profilePictureUrl: json['profile_picture_url'] ?? '',
       matchScore: (json['match_score'] as num?)?.toDouble() ?? 0.0,
@@ -23,6 +26,7 @@ class Therapist {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'therapist_id': id, // Include both forms to ensure compatibility
       'full_name': fullName,
       'profile_picture_url': profilePictureUrl,
       'match_score': matchScore,
