@@ -13,6 +13,10 @@ class AppColors {
   static const Color warning = Color(0xFFF59E0B);
   static const Color success = Color(0xFF22C55E);
   static const Color disabled = Color(0xFF94A3B8);
+  static const Color anthracite = Color(0xFF2A2A2A);    // Added anthracite color
+  static const Color lightPink = Color(0xFFFEE8EC); // Light pink color for auth backgrounds
+
+
 
   // Aliases used in various parts of UI for compatibility
   static const Color primaryColor = primary;

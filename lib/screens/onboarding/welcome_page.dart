@@ -25,80 +25,81 @@ class _WelcomePageState extends State<WelcomePage> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Logo
+              // Logo and Main Titles - Left aligned
               Positioned(
                 top: 16,
-                left: 16,
-                child: Image.asset('assets/icons/logo.png', height: 40),
-              ),
-
-              // Language Dropdown
-              Positioned(
-                top: 16,
-                right: 16,
-                child: DropdownButton<String>(
-                  value: _selectedLang,
-                  icon: const Icon(Icons.language, color: Colors.white),
-                  dropdownColor: Colors.white,
-                  underline: const SizedBox(),
-                  items: const [
-                    DropdownMenuItem(value: 'en', child: Text('English')),
-                    DropdownMenuItem(value: 'et', child: Text('Estonian')),
-                    DropdownMenuItem(value: 'lt', child: Text('Lithuanian')),
-                    DropdownMenuItem(value: 'lv', child: Text('Latvian')),
-                    DropdownMenuItem(value: 'ru', child: Text('Russian')),
+                left: 24,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Left align the content
+                  children: [
+                    Image.asset('assets/icons/logo.png', height: 50),
+                    const SizedBox(height: 12),
+                    Text(
+                      'ONNJOY – Therapy, Your Way',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.anthracite,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.6),
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Efficient. Private. Affordable.',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.anthracite,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.5),
+                            offset: const Offset(0, 1),
+                            blurRadius: 3,
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
-                  onChanged: (val) => setState(() => _selectedLang = val!),
                 ),
               ),
 
-              // Main headline texts
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 80),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ONNJOY – Therapy, Your Way',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orangeAccent,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.6),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Efficient. Private. Affordable.',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.orangeAccent.shade200,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.5),
-                              offset: const Offset(0, 1),
-                              blurRadius: 3,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+              // Language Dropdown - Improved visibility
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade400),
+                  ),
+                  child: DropdownButton<String>(
+                    value: _selectedLang,
+                    icon: const Icon(Icons.language, color: Colors.black87),
+                    dropdownColor: Colors.white,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: 'en', child: Text('English')),
+                      DropdownMenuItem(value: 'et', child: Text('Estonian')),
+                      DropdownMenuItem(value: 'lt', child: Text('Lithuanian')),
+                      DropdownMenuItem(value: 'lv', child: Text('Latvian')),
+                      DropdownMenuItem(value: 'ru', child: Text('Russian')),
                     ],
+                    onChanged: (val) => setState(() => _selectedLang = val!),
                   ),
                 ),
               ),
 
-              // Instruction texts
+              // Instruction texts with styled containers - Adjusted position
               Positioned(
-                top: 220,
+                top: 150, // Adjusted to position below the titles
                 left: 24,
                 right: 24,
                 child: Column(
@@ -109,7 +110,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.orangeAccent,
+                        color: AppColors.anthracite,
                         shadows: [
                           Shadow(
                             color: Colors.black.withOpacity(0.5),
@@ -125,17 +126,29 @@ class _WelcomePageState extends State<WelcomePage> {
                       '2. After SignUp we will give you an anonymous username',
                       '3. Type in your entry to find the best therapist matches',
                       '4. Book an appointment'
-                    ].map((text) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                    ].map((text) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
                       child: Text(
                         text,
                         style: const TextStyle(
-                          fontSize: 17,
-                          color: Colors.white,
+                          fontSize: 16,
+                          color: Colors.black87,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                    )),
+                    )).toList(),
                   ],
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../utils/api_endpoints.dart';
+import '../../utils/constants.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
 import '../../app_router.dart';
@@ -68,6 +69,7 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.lightPink,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),

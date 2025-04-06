@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../utils/constants.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
 import '../../app_router.dart'; // <-- Import route constants
@@ -23,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
+      backgroundColor: AppColors.lightPink,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),

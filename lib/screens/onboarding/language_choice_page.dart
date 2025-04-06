@@ -40,7 +40,7 @@ class _LanguageChoicePageState extends State<LanguageChoicePage> {
                 child: Image.asset('assets/icons/logo.png', height: 40),
               ),
 
-              // Main Title with Bold, Large, Orange style
+              // Main Title with anthracite color
               Positioned(
                 top: 80,
                 left: 0,
@@ -51,7 +51,7 @@ class _LanguageChoicePageState extends State<LanguageChoicePage> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.orangeAccent,
+                      color: AppColors.anthracite, // Changed to anthracite
                       shadows: [
                         Shadow(
                           color: Colors.black.withOpacity(0.5),

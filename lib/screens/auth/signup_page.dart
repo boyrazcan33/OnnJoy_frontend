@@ -24,6 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
+      backgroundColor: AppColors.lightPink,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
