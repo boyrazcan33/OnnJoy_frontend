@@ -116,5 +116,19 @@
   "package": "Package:",
   "date": "Date:",
   "message": "Message:",
-  "status": "Status:"
+  "status": "Status:",
+
+  "readBio": "Read Bio",
+  "backToEntryPage": "Back to Entry page for a new match",
+  "noMatchesFound": "No matches found. Please try again later.",
+  "matchPercentage": "Match score",
+
+  "therapyYourWay": "ONNJOY – Therapy, Your Way",
+  "efficientPrivateAffordable": "Efficient. Private. Affordable.",
+  "whatIsOnnJoy": "What is OnnJoy?",
+
+  "welcomeStep1": "1. Choose your language to communicate with your therapist",
+  "welcomeStep2": "2. After SignUp we will give you an anonymous username",
+  "welcomeStep3": "3. Type in your entry to find the best therapist matches",
+  "welcomeStep4": "4. Book an appointment"
 }

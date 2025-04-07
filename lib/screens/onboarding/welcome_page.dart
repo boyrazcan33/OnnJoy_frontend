@@ -38,8 +38,8 @@ class _WelcomePageState extends State<WelcomePage> {
                   children: [
                     Image.asset('assets/icons/logo.png', height: 50),
                     const SizedBox(height: 12),
-                    Text(
-                      'ONNJOY – Therapy, Your Way',
+                    TranslateText(
+                      'therapyYourWay',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -54,9 +54,9 @@ class _WelcomePageState extends State<WelcomePage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Efficient. Private. Affordable.',
-                      style: TextStyle(
+                    TranslateText(
+                      'efficientPrivateAffordable',
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
@@ -98,11 +98,11 @@ class _WelcomePageState extends State<WelcomePage> {
                     ),
                     const SizedBox(height: 16),
                     ...[
-                      '1. Choose your language to communicate with your therapist',
-                      '2. After SignUp we will give you an anonymous username',
-                      '3. Type in your entry to find the best therapist matches',
-                      '4. Book an appointment'
-                    ].map((text) => Container(
+                      'welcomeStep1',
+                      'welcomeStep2',
+                      'welcomeStep3',
+                      'welcomeStep4'
+                    ].map((key) => Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
@@ -116,8 +116,8 @@ class _WelcomePageState extends State<WelcomePage> {
                           ),
                         ],
                       ),
-                      child: Text(
-                        text,
+                      child: TranslateText(
+                        key,
                         style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black87,

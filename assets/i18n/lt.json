@@ -116,5 +116,19 @@
   "package": "Paketas:",
   "date": "Data:",
   "message": "Žinutė:",
-  "status": "Būsena:"
+  "status": "Būsena:",
+
+  "readBio": "Skaityti biografiją",
+  "backToEntryPage": "Grįžti į įvesties puslapį naujam atitikimui",
+  "noMatchesFound": "Atitikimų nerasta. Bandykite dar kartą vėliau.",
+  "matchPercentage": "Atitikimo balas",
+
+  "therapyYourWay": "ONNJOY – Terapija Jūsų būdu",
+  "efficientPrivateAffordable": "Efektyviai. Privačiai. Įperkamai.",
+  "whatIsOnnJoy": "Kas yra OnnJoy?",
+
+  "welcomeStep1": "1. Pasirinkite kalbą bendravimui su savo terapeutu",
+  "welcomeStep2": "2. Po registracijos suteiksime Jums anoniminį vartotojo vardą",
+  "welcomeStep3": "3. Įveskite savo tekstą, kad rastumėte geriausius terapeutų atitikmenis",
+  "welcomeStep4": "4. Užsiregistruokite konsultacijai"
 }

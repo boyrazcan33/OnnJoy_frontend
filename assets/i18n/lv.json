@@ -116,5 +116,19 @@
   "package": "Pakete:",
   "date": "Datums:",
   "message": "Ziņojums:",
-  "status": "Statuss:"
+  "status": "Statuss:",
+
+  "readBio": "Lasīt bio",
+  "backToEntryPage": "Atpakaļ uz ieraksta lapu jaunam atbilstības meklējumam",
+  "noMatchesFound": "Atbilstības nav atrastas. Lūdzu, mēģiniet vēlāk.",
+  "matchPercentage": "Atbilstības rādītājs",
+
+  "therapyYourWay": "ONNJOY – Terapija tavā veidā",
+  "efficientPrivateAffordable": "Efektīvi. Privāti. Pieejami.",
+  "whatIsOnnJoy": "Kas ir OnnJoy?",
+
+  "welcomeStep1": "1. Izvēlieties valodu saziņai ar jūsu terapeitu",
+  "welcomeStep2": "2. Pēc reģistrācijas mēs jums piešķirsim anonīmu lietotājvārdu",
+  "welcomeStep3": "3. Ierakstiet savu tekstu, lai atrastu labākās terapeitu atbilstības",
+  "welcomeStep4": "4. Pierakstieties uz konsultāciju"
 }

@@ -4,10 +4,12 @@ import 'dart:convert';
 
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../utils/api_endpoints.dart';
 import '../../app_router.dart';
 import '../../utils/debug_utils.dart';
 import '../home/therapist_profile_page.dart';  // Direct import for navigation
+import '../../widgets/common/translate_text.dart';
 
 class TherapistMatchesPage extends StatefulWidget {
   const TherapistMatchesPage({Key? key}) : super(key: key);
@@ -99,6 +101,7 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   @override
   Widget build(BuildContext context) {
     final anonName = Provider.of<AuthProvider>(context).user?.anonUsername ?? 'User';
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -119,11 +122,11 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
             if (error != null)
               Text(error!, style: const TextStyle(color: Colors.red)),
             if (matches.isEmpty && error == null)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: Text('No matches found. Please try again later.',
-                    style: TextStyle(fontSize: 16),
+                  padding: const EdgeInsets.only(top: 40),
+                  child: TranslateText('noMatchesFound',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
@@ -138,7 +141,7 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
               onPressed: () {
                 Navigator.pushReplacementNamed(context, AppRoutes.entry);
               },
-              child: const Text('Back to Entry page for a new match'),
+              child: TranslateText('backToEntryPage'),
             ),
           ],
         ),
@@ -147,6 +150,8 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   }
 
   Widget _buildMatchCard(Map<String, dynamic> match) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     // Calculate image number based on therapist data
     String getProfileImage() {
       final String fullName = match['full_name'] as String? ?? 'Therapist';
@@ -182,9 +187,17 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
                   match['full_name'] ?? 'Therapist',
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  '${(match['match_score'] is num ? (match['match_score'] * 100).toStringAsFixed(1) : "0")}% match',
-                  style: const TextStyle(color: Colors.green, fontSize: 14),
+                Row(
+                  children: [
+                    TranslateText(
+                      'matchPercentage',
+                      style: const TextStyle(color: Colors.green, fontSize: 14),
+                    ),
+                    Text(
+                      ': ${(match['match_score'] is num ? (match['match_score'] * 100).toStringAsFixed(1) : "0")}%',
+                      style: const TextStyle(color: Colors.green, fontSize: 14),
+                    ),
+                  ],
                 ),
                 // Uncomment for debugging
                 // Text(
@@ -209,7 +222,7 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => _viewTherapistBio(match),
-                child: const Text('Read Bio'),
+                child: TranslateText('readBio'),
               ),
             ],
           ),

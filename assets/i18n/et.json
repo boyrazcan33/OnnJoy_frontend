@@ -116,5 +116,19 @@
   "package": "Pakett:",
   "date": "Kuupäev:",
   "message": "Sõnum:",
-  "status": "Staatus:"
+  "status": "Staatus:",
+
+  "readBio": "Loe tutvustust",
+  "backToEntryPage": "Tagasi sisestamise lehele uue sobitamise jaoks",
+  "noMatchesFound": "Sobivaid terapeute ei leitud. Palun proovi hiljem uuesti.",
+  "matchPercentage": "Sobivuse skoor",
+
+  "therapyYourWay": "ONNJOY – Teraapia, Sinu moodi",
+  "efficientPrivateAffordable": "Tõhus. Privaatne. Taskukohane.",
+  "whatIsOnnJoy": "Mis on OnnJoy?",
+
+  "welcomeStep1": "1. Vali keel, millega oma terapeudiga suhelda",
+  "welcomeStep2": "2. Pärast registreerimist anname sulle anonüümse kasutajanime",
+  "welcomeStep3": "3. Sisesta oma tekst, et leida parimad terapeudi sobivused",
+  "welcomeStep4": "4. Broneeri vastuvõtuaeg"
 }
