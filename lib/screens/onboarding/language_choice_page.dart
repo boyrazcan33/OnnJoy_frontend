@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../utils/constants.dart';
 import '../../app_router.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/translate_text.dart';
 
 class LanguageChoicePage extends StatefulWidget {
   const LanguageChoicePage({Key? key}) : super(key: key);
@@ -10,8 +13,6 @@ class LanguageChoicePage extends StatefulWidget {
 }
 
 class _LanguageChoicePageState extends State<LanguageChoicePage> {
-  String _selectedLang = 'et';
-
   final Map<String, String> _languageFlags = {
     'en': 'assets/flags/uk.png',
     'et': 'assets/flags/estonia.png',
@@ -22,6 +23,9 @@ class _LanguageChoicePageState extends State<LanguageChoicePage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    String _selectedLang = languageProvider.currentLanguage;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -46,12 +50,12 @@ class _LanguageChoicePageState extends State<LanguageChoicePage> {
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: Text(
-                    'Confirm Your Therapy Language',
+                  child: TranslateText(
+                    'chooseLanguage',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.anthracite, // Changed to anthracite
+                      color: AppColors.anthracite,
                       shadows: [
                         Shadow(
                           color: Colors.black.withOpacity(0.5),
@@ -73,7 +77,10 @@ class _LanguageChoicePageState extends State<LanguageChoicePage> {
                   children: _languageFlags.entries.map((entry) {
                     final code = entry.key;
                     return GestureDetector(
-                      onTap: () => setState(() => _selectedLang = code),
+                      onTap: () {
+                        setState(() => _selectedLang = code);
+                        languageProvider.setLanguage(code);
+                      },
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -139,7 +146,17 @@ class _LanguageChoicePageState extends State<LanguageChoicePage> {
                 bottom: 20,
                 right: 20,
                 child: GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, AppRoutes.signup, arguments: _selectedLang),
+                  onTap: () async {
+                    // Save language in provider before navigation
+                    await languageProvider.setLanguage(_selectedLang);
+
+                    // Pass selected language to signup screen
+                    Navigator.pushNamed(
+                        context,
+                        AppRoutes.signup,
+                        arguments: _selectedLang
+                    );
+                  },
                   child: Image.asset('assets/icons/step-forward.png', height: 32),
                 ),
               ),

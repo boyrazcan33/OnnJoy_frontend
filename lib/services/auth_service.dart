@@ -66,4 +66,28 @@ class AuthService {
       throw Exception('Failed to fetch user details: ${response.body}');
     }
   }
+
+  // New method to update user's language preference
+  Future<bool> updateLanguage({
+    required String language,
+    required String token,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConfig.baseUrl}/api/user/language'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'language': language,
+        }),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error updating language: $e');
+      return false;
+    }
+  }
 }

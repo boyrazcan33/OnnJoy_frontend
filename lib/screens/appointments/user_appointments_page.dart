@@ -5,7 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../utils/api_endpoints.dart';
+import '../../widgets/common/translate_text.dart';
 
 class UserAppointmentsPage extends StatefulWidget {
   const UserAppointmentsPage({Key? key}) : super(key: key);
@@ -58,14 +60,16 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset('assets/icons/logo.png', height: 40),
+        title: TranslateText('appointments'),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : appointments.isEmpty
-          ? const Center(child: Text('No appointments found.'))
+          ? Center(child: TranslateText('noAppointmentsFound'))
           : ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: appointments.length,
@@ -78,12 +82,30 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
   }
 
   Widget _buildAppointmentCard(Map<String, dynamic> appt) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     final String fullName = appt['full_name'] ?? 'Therapist';
     final String package = appt['package_type'] ?? 'N/A';
     final String date =
     appt['scheduled_at'] != null ? formatDate(appt['scheduled_at']) : 'Unknown';
     final String? message = appt['pre_session_message'];
     final String status = (appt['status'] ?? 'unknown').toString().toUpperCase();
+
+    // Translate package type
+    String translatedPackage;
+    switch (package) {
+      case 'single':
+        translatedPackage = 'packageSingle';
+        break;
+      case 'monthly':
+        translatedPackage = 'packageMonthly';
+        break;
+      case 'intensive':
+        translatedPackage = 'packageIntensive';
+        break;
+      default:
+        translatedPackage = package;
+    }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -105,21 +127,48 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text("Package: $package"),
-            Text("Date: $date"),
+            Row(
+              children: [
+                TranslateText('package'),
+                const SizedBox(width: 4),
+                TranslateText(translatedPackage),
+              ],
+            ),
+            Row(
+              children: [
+                TranslateText('date'),
+                const SizedBox(width: 4),
+                Text(date),
+              ],
+            ),
             if (message != null && message.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  "Message: $message",
-                  style: const TextStyle(fontStyle: FontStyle.italic),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TranslateText('message'),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: const TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                "Status: $status ✅",
-                style: const TextStyle(color: Colors.green),
+              child: Row(
+                children: [
+                  TranslateText('status'),
+                  const SizedBox(width: 4),
+                  Text(
+                    "$status ✅",
+                    style: const TextStyle(color: Colors.green),
+                  ),
+                ],
               ),
             ),
           ],

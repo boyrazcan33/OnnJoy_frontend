@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
+import '../../widgets/common/translate_text.dart';
 import '../../utils/constants.dart';
 import '../../app_router.dart';
 
@@ -18,11 +20,35 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
-  String _selectedLanguage = 'en';
+  late String _selectedLanguage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with the current language from the provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _selectedLanguage = Provider.of<LanguageProvider>(context, listen: false).currentLanguage;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Try to get language from route arguments
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is String) {
+      _selectedLanguage = args;
+    } else {
+      // Use current language as fallback
+      _selectedLanguage = Provider.of<LanguageProvider>(context, listen: false).currentLanguage;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       backgroundColor: AppColors.lightPink,
       body: SafeArea(
@@ -34,16 +60,16 @@ class _SignUpPageState extends State<SignUpPage> {
               children: [
                 Image.asset('assets/icons/logo.png', height: 60),
                 const SizedBox(height: 24),
-                const Center(
-                  child: Text(
-                    'ONNJOY',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                Center(
+                  child: TranslateText(
+                    'signup',
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 24),
                 CustomTextField(
-                  label: 'Email',
-                  hintText: 'Enter your email',
+                  label: languageProvider.translate('email'),
+                  hintText: languageProvider.translate('email'),
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   validator: (val) =>
@@ -51,8 +77,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  label: 'Password',
-                  hintText: 'Create a password',
+                  label: languageProvider.translate('password'),
+                  hintText: languageProvider.translate('password'),
                   controller: _password,
                   isPassword: true,
                   obscureText: true,
@@ -61,8 +87,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  label: 'Confirm Password',
-                  hintText: 'Repeat your password',
+                  label: languageProvider.translate('confirmPassword'),
+                  hintText: languageProvider.translate('confirmPassword'),
                   controller: _confirmPassword,
                   isPassword: true,
                   obscureText: true,
@@ -74,38 +100,87 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _selectedLanguage,
-                  decoration: const InputDecoration(
-                    labelText: 'Preferred Language',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: languageProvider.translate('chooseLanguage'),
+                    border: const OutlineInputBorder(),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'en', child: Text('English')),
-                    DropdownMenuItem(value: 'et', child: Text('Estonian')),
-                    DropdownMenuItem(value: 'lt', child: Text('Lithuanian')),
-                    DropdownMenuItem(value: 'lv', child: Text('Latvian')),
-                    DropdownMenuItem(value: 'ru', child: Text('Russian')),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'en',
+                      child: Row(
+                        children: [
+                          Image.asset('assets/flags/uk.png', width: 24, height: 16),
+                          const SizedBox(width: 8),
+                          const Text('English'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'et',
+                      child: Row(
+                        children: [
+                          Image.asset('assets/flags/estonia.png', width: 24, height: 16),
+                          const SizedBox(width: 8),
+                          const Text('Estonian'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'lt',
+                      child: Row(
+                        children: [
+                          Image.asset('assets/flags/lithuania.png', width: 24, height: 16),
+                          const SizedBox(width: 8),
+                          const Text('Lithuanian'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'lv',
+                      child: Row(
+                        children: [
+                          Image.asset('assets/flags/latvia.png', width: 24, height: 16),
+                          const SizedBox(width: 8),
+                          const Text('Latvian'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'ru',
+                      child: Row(
+                        children: [
+                          Image.asset('assets/flags/russia.png', width: 24, height: 16),
+                          const SizedBox(width: 8),
+                          const Text('Russian'),
+                        ],
+                      ),
+                    ),
                   ],
                   onChanged: (value) {
-                    setState(() {
-                      _selectedLanguage = value!;
-                    });
+                    if (value != null) {
+                      setState(() {
+                        _selectedLanguage = value;
+                      });
+                      // Update app-wide language
+                      languageProvider.setLanguage(value);
+                    }
                   },
                 ),
                 const SizedBox(height: 24),
                 Row(
                   children: [
                     Checkbox(value: true, onChanged: (_) {}),
-                    const Expanded(
-                      child: Text(
-                        'I have read and accept User Terms and Privacy Policy',
-                        style: TextStyle(fontSize: 12),
+                    Expanded(
+                      child: TranslateText(
+                        'userTerms',
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 CustomButton(
-                  text: 'Sign Up',
+                  text: languageProvider.translate('signup'),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       await authProvider.signup(
@@ -115,6 +190,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       );
 
                       if (authProvider.isAuthenticated) {
+                        // If signup successful, ensure the language is properly set
+                        await languageProvider.setLanguage(_selectedLanguage, token: authProvider.token);
                         Navigator.pushReplacementNamed(context, AppRoutes.entry);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -128,11 +205,11 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
-                  child: const Text('Already a Member? Log In'),
+                  child: TranslateText('alreadyMember'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.therapistLogin),
-                  child: const Text('I am a therapist'),
+                  child: TranslateText('iAmTherapist'),
                 ),
                 const SizedBox(height: 16),
                 IconButton(

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/translate_text.dart';
 import '../../utils/api_endpoints.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -33,15 +35,17 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _deleteAccount() {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: const Text('Are you sure you want to delete your account?'),
+        title: TranslateText('deleteAccount'),
+        content: TranslateText('confirmDeleteAccount'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: TranslateText('cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -50,7 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
               auth.logout();
               Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
             },
-            child: const Text('Delete'),
+            child: TranslateText('delete'),
           ),
         ],
       ),
@@ -60,10 +64,11 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context, listen: false);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Account Settings"),
+        title: TranslateText("settings"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -73,13 +78,15 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(20),
         child: ListView(
           children: [
-            const Text("Update Email Address", style: TextStyle(fontWeight: FontWeight.bold)),
+            TranslateText("updateEmailAddress", style: const TextStyle(fontWeight: FontWeight.bold)),
             if (showEmailField)
               Column(
                 children: [
                   TextField(
                     controller: emailController,
-                    decoration: const InputDecoration(hintText: "New email"),
+                    decoration: InputDecoration(
+                        hintText: languageProvider.translate("newEmail")
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -88,21 +95,26 @@ class _SettingsPageState extends State<SettingsPage> {
                         const SnackBar(content: Text("Email updated")),
                       );
                     },
-                    child: const Text("Save Email"),
+                    child: TranslateText("saveEmail"),
                   )
                 ],
               )
             else
-              TextButton(onPressed: _updateEmail, child: const Text("Change Email")),
+              TextButton(
+                  onPressed: _updateEmail,
+                  child: TranslateText("changeEmail")
+              ),
 
             const SizedBox(height: 24),
-            const Text("Update Password", style: TextStyle(fontWeight: FontWeight.bold)),
+            TranslateText("updatePassword", style: const TextStyle(fontWeight: FontWeight.bold)),
             if (showPasswordField)
               Column(
                 children: [
                   TextField(
                     controller: passwordController,
-                    decoration: const InputDecoration(hintText: "New password"),
+                    decoration: InputDecoration(
+                        hintText: languageProvider.translate("newPassword")
+                    ),
                     obscureText: true,
                   ),
                   ElevatedButton(
@@ -112,25 +124,31 @@ class _SettingsPageState extends State<SettingsPage> {
                         const SnackBar(content: Text("Password updated")),
                       );
                     },
-                    child: const Text("Save Password"),
+                    child: TranslateText("savePassword"),
                   )
                 ],
               )
             else
-              TextButton(onPressed: _updatePassword, child: const Text("Change Password")),
+              TextButton(
+                  onPressed: _updatePassword,
+                  child: TranslateText("changePassword")
+              ),
 
             const SizedBox(height: 24),
-            const Text("Contact Us", style: TextStyle(fontWeight: FontWeight.bold)),
+            TranslateText("contactUs", style: const TextStyle(fontWeight: FontWeight.bold)),
             TextButton(
               onPressed: _contactUs,
               child: const Text("support@onnjoy.com"),
             ),
 
             const SizedBox(height: 24),
-            const Text("Delete Account", style: TextStyle(fontWeight: FontWeight.bold)),
+            TranslateText("deleteAccount", style: const TextStyle(fontWeight: FontWeight.bold)),
             TextButton(
               onPressed: _deleteAccount,
-              child: const Text("Permanently Delete", style: TextStyle(color: Colors.red)),
+              child: TranslateText(
+                  "permanentlyDelete",
+                  style: const TextStyle(color: Colors.red)
+              ),
             ),
           ],
         ),

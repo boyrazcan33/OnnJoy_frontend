@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../utils/constants.dart';
 import '../../app_router.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/language_picker.dart';
+import '../../widgets/common/translate_text.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -10,10 +14,10 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-  String _selectedLang = 'et';
-
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -50,51 +54,23 @@ class _WelcomePageState extends State<WelcomePage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    const Text(
                       'Efficient. Private. Affordable.',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.anthracite,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.5),
-                            offset: const Offset(0, 1),
-                            blurRadius: 3,
-                          ),
-                        ],
+                        color: Colors.black87,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // Language Dropdown - Improved visibility
+              // Language Dropdown - Now using our custom language picker
               Positioned(
                 top: 16,
                 right: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.shade400),
-                  ),
-                  child: DropdownButton<String>(
-                    value: _selectedLang,
-                    icon: const Icon(Icons.language, color: Colors.black87),
-                    dropdownColor: Colors.white,
-                    underline: const SizedBox(),
-                    items: const [
-                      DropdownMenuItem(value: 'en', child: Text('English')),
-                      DropdownMenuItem(value: 'et', child: Text('Estonian')),
-                      DropdownMenuItem(value: 'lt', child: Text('Lithuanian')),
-                      DropdownMenuItem(value: 'lv', child: Text('Latvian')),
-                      DropdownMenuItem(value: 'ru', child: Text('Russian')),
-                    ],
-                    onChanged: (val) => setState(() => _selectedLang = val!),
-                  ),
-                ),
+                child: LanguagePicker(),
               ),
 
               // Instruction texts with styled containers - Adjusted position
@@ -105,8 +81,8 @@ class _WelcomePageState extends State<WelcomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Let me explain How to Use OnnJoy',
+                    TranslateText(
+                      'whatIsOnnJoy',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../utils/constants.dart';
 import '../../app_router.dart';
+import '../../widgets/common/translate_text.dart';
+import '../../widgets/common/language_picker.dart';
 
 class WhatIsOnnJoyPage extends StatefulWidget {
   const WhatIsOnnJoyPage({Key? key}) : super(key: key);
@@ -11,18 +13,17 @@ class WhatIsOnnJoyPage extends StatefulWidget {
 }
 
 class _WhatIsOnnJoyPageState extends State<WhatIsOnnJoyPage> with SingleTickerProviderStateMixin {
-  String _selectedLang = 'et';
   int _visibleMessagesCount = 0;
   Timer? _timer;
 
-  final List<String> messages = [
-    "20 euros a weekly therapy. Don't pay 100 euros for a therapy session.",
-    "Start Healing Faster – Share your story before your session for efficient interaction.",
-    "AI-Powered Matching – Find your ideal therapist in seconds based on your story.",
-    "See Your Therapist, Stay Unseen – Default one-way video for your comfort.",
-    "Stay Anonymous, If You Want – Your name, your voice, your choice.",
-    "Voice Masking for Extra Privacy – Express yourself freely.",
-    "Shape your therapy with 1000 characters message in advance",
+  final List<String> messageKeys = [
+    "affordableTherapy",
+    "startHealingFaster",
+    "aiPoweredMatching",
+    "seeYourTherapist",
+    "stayAnonymous",
+    "voiceMasking",
+    "shapeYourTherapy"
   ];
 
   @override
@@ -38,7 +39,7 @@ class _WhatIsOnnJoyPageState extends State<WhatIsOnnJoyPage> with SingleTickerPr
     // Show one message at a time with a delay
     _timer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
       setState(() {
-        if (_visibleMessagesCount < messages.length) {
+        if (_visibleMessagesCount < messageKeys.length) {
           _visibleMessagesCount++;
         } else {
           timer.cancel();
@@ -75,8 +76,8 @@ class _WhatIsOnnJoyPageState extends State<WhatIsOnnJoyPage> with SingleTickerPr
                   children: [
                     Image.asset('assets/icons/logo.png', height: 50),
                     const SizedBox(height: 12),
-                    Text(
-                      'ONNJOY – Therapy, Your Way',
+                    TranslateText(
+                      'therapyYourWay',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -91,8 +92,8 @@ class _WhatIsOnnJoyPageState extends State<WhatIsOnnJoyPage> with SingleTickerPr
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Efficient. Private. Affordable.',
+                    TranslateText(
+                      'efficient',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -114,30 +115,7 @@ class _WhatIsOnnJoyPageState extends State<WhatIsOnnJoyPage> with SingleTickerPr
               Positioned(
                 top: 16,
                 right: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.shade400),
-                  ),
-                  child: DropdownButton<String>(
-                    value: _selectedLang,
-                    icon: const Icon(Icons.language, color: Colors.black87),
-                    underline: const SizedBox(),
-                    dropdownColor: Colors.white,
-                    items: const [
-                      DropdownMenuItem(value: 'en', child: Text('English')),
-                      DropdownMenuItem(value: 'et', child: Text('Estonian')),
-                      DropdownMenuItem(value: 'lt', child: Text('Lithuanian')),
-                      DropdownMenuItem(value: 'lv', child: Text('Latvian')),
-                      DropdownMenuItem(value: 'ru', child: Text('Russian')),
-                    ],
-                    onChanged: (value) {
-                      setState(() => _selectedLang = value!);
-                    },
-                  ),
-                ),
+                child: LanguagePicker(),
               ),
 
               // Animated Text Boxes
@@ -166,8 +144,8 @@ class _WhatIsOnnJoyPageState extends State<WhatIsOnnJoyPage> with SingleTickerPr
                               ),
                             ],
                           ),
-                          child: Text(
-                            messages[index],
+                          child: TranslateText(
+                            messageKeys[index],
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 18,

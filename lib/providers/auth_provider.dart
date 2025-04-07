@@ -45,6 +45,37 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Update user's language preference
+  Future<bool> updateLanguage(String language) async {
+    if (!isAuthenticated || token == null) {
+      return false;
+    }
+
+    try {
+      final success = await _authService.updateLanguage(
+        language: language,
+        token: token!,
+      );
+
+      if (success && _user != null) {
+        // Update local user model
+        _user = User(
+          id: _user!.id,
+          email: _user!.email,
+          anonUsername: _user!.anonUsername,
+          language: language,  // Update with new language
+          token: _user!.token,
+        );
+        notifyListeners();
+      }
+
+      return success;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    }
+  }
+
   void logout() {
     _user = null;
     notifyListeners();

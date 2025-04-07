@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../utils/constants.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
-import '../../app_router.dart'; // <-- Import route constants
+import '../../widgets/common/translate_text.dart';
+import '../../app_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -22,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
       backgroundColor: AppColors.lightPink,
@@ -35,8 +38,8 @@ class _LoginPageState extends State<LoginPage> {
                 Image.asset('assets/icons/logo.png', height: 60),
                 const SizedBox(height: 24),
                 CustomTextField(
-                  label: 'Email',
-                  hintText: 'Enter your email',
+                  label: languageProvider.translate('email'),
+                  hintText: languageProvider.translate('email'),
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   validator: (val) =>
@@ -44,8 +47,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  label: 'Password',
-                  hintText: 'Enter your password',
+                  label: languageProvider.translate('password'),
+                  hintText: languageProvider.translate('password'),
                   controller: _password,
                   isPassword: true,
                   obscureText: true,
@@ -54,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: 'Log In',
+                  text: languageProvider.translate('logIn'),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       await authProvider.login(
@@ -63,6 +66,13 @@ class _LoginPageState extends State<LoginPage> {
                       );
 
                       if (authProvider.isAuthenticated) {
+                        if (authProvider.user?.language != null) {
+                          // Update language based on user's saved preference
+                          languageProvider.setLanguage(
+                              authProvider.user!.language,
+                              token: authProvider.token
+                          );
+                        }
                         Navigator.pushReplacementNamed(context, AppRoutes.entry);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -80,12 +90,12 @@ class _LoginPageState extends State<LoginPage> {
                     TextButton(
                       onPressed: () =>
                           Navigator.pushReplacementNamed(context, AppRoutes.signup),
-                      child: const Text('Create an Account'),
+                      child: TranslateText('createAccount'),
                     ),
                     TextButton(
                       onPressed: () =>
                           Navigator.pushNamed(context, AppRoutes.resetPassword),
-                      child: const Text('Forgot Password?'),
+                      child: TranslateText('forgotPassword'),
                     ),
                   ],
                 ),
@@ -93,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   onPressed: () =>
                       Navigator.pushReplacementNamed(context, AppRoutes.therapistLogin),
-                  child: const Text('I am a therapist'),
+                  child: TranslateText('iAmTherapist'),
                 ),
                 const SizedBox(height: 8),
                 IconButton(

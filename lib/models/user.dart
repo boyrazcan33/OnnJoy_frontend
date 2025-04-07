@@ -1,8 +1,8 @@
 class User {
-  final int? id; // Added ID (nullable in case it’s not returned from backend)
+  final int? id; // Added ID (nullable in case it's not returned from backend)
   final String email;
   final String anonUsername;
-  final String language;
+  final String language; // This was named differently than what we're accessing
   final String token;
 
   const User({
@@ -32,4 +32,7 @@ class User {
       'token': token,
     };
   }
+
+  // Add a getter for languagePreference that returns the language field
+  String get languagePreference => language;
 }

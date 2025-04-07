@@ -5,9 +5,11 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 
 import '../../providers/therapist_provider.dart';
-import '../../providers/auth_provider.dart'; // Added auth provider import
+import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../utils/api_endpoints.dart';
 import '../../app_router.dart';
+import '../../widgets/common/translate_text.dart';
 
 class TherapistCalendarPage extends StatefulWidget {
   const TherapistCalendarPage({Key? key}) : super(key: key);
@@ -157,9 +159,11 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset('assets/icons/logo.png', height: 40),
+        title: TranslateText('bookAppointment'),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -176,7 +180,7 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Go Back'),
+              child: TranslateText('back'),
             ),
           ],
         ),
@@ -185,9 +189,9 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const Text(
-              'Please pick an available day',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            TranslateText(
+              'pickAvailableDay',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 20),
             TableCalendar(
@@ -221,12 +225,12 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
             ),
             const Spacer(),
             if (selectedDate != null)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  "To keep this platform affordable and for everybody, you cannot cancel or edit your appointment date",
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                child: TranslateText(
+                  'cancelPolicyWarning',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red, fontSize: 13),
+                  style: const TextStyle(color: Colors.red, fontSize: 13),
                 ),
               ),
             Padding(
@@ -247,7 +251,7 @@ class _TherapistCalendarPageState extends State<TherapistCalendarPage> {
                       );
                     }
                         : null,
-                    child: const Text('Confirm'),
+                    child: TranslateText('confirm'),
                   ),
                 ],
               ),

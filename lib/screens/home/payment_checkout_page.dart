@@ -5,9 +5,11 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../utils/api_endpoints.dart';
 import '../../app_router.dart';
 import '../../utils/constants.dart';
+import '../../widgets/common/translate_text.dart';
 
 class PaymentCheckoutPage extends StatefulWidget {
   const PaymentCheckoutPage({Key? key}) : super(key: key);
@@ -28,24 +30,24 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   // Package display information
   final Map<String, Map<String, dynamic>> packageInfo = {
     'single': {
-      'title': 'Instant Support',
+      'title': 'packageSingle',
       'price': 29,
-      'sessions': '1 session',
-      'duration': '20-minute session',
+      'sessions': 'packageSingleSessions',
+      'duration': 'packageSingleDuration',
       'icon': '🟢'
     },
     'monthly': {
-      'title': 'Monthly Wellness Pack',
+      'title': 'packageMonthly',
       'price': 79,
-      'sessions': '4 weekly sessions',
-      'duration': '20-minute sessions',
+      'sessions': 'packageMonthlySessions',
+      'duration': 'packageMonthlyDuration',
       'icon': '🔵'
     },
     'intensive': {
-      'title': 'Monthly Intensive Boost',
+      'title': 'packageIntensive',
       'price': 129,
-      'sessions': '8 bi-weekly sessions',
-      'duration': '20-minute sessions',
+      'sessions': 'packageIntensiveSessions',
+      'duration': 'packageIntensiveDuration',
       'icon': '🌟'
     },
   };
@@ -62,7 +64,9 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   Future<void> _payNow() async {
     if (!agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please agree to the terms and conditions")),
+        SnackBar(content:
+        TranslateText("pleaseAgreeToTerms")
+        ),
       );
       return;
     }
@@ -90,7 +94,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Payment failed. Please try again.")),
+          SnackBar(content: TranslateText("paymentFailed")),
         );
       }
     } catch (e) {
@@ -103,12 +107,14 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   }
 
   Widget _buildPaymentMethodSelector() {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Payment Method',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        TranslateText(
+          'paymentMethod',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Container(
@@ -125,7 +131,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                     const SizedBox(width: 8),
                     Image.asset('assets/icons/mastercard.png', height: 24),
                     const SizedBox(width: 12),
-                    const Text('Credit / Debit Card'),
+                    TranslateText('creditDebitCard'),
                   ],
                 ),
                 value: 0,
@@ -142,7 +148,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                     const SizedBox(width: 4),
                     Image.asset('assets/icons/stripe.png', height: 24),
                     const SizedBox(width: 12),
-                    const Text('Stripe Payment'),
+                    TranslateText('stripePayment'),
                   ],
                 ),
                 value: 1,
@@ -163,6 +169,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
     final info = packageInfo[packageType]!;
     final auth = Provider.of<AuthProvider>(context);
     final username = auth.user?.anonUsername ?? 'User';
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -177,9 +184,9 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Order Summary',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              TranslateText(
+                'orderSummary',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(username, style: const TextStyle(fontWeight: FontWeight.w500)),
             ],
@@ -203,12 +210,13 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    TranslateText(
                       info['title'],
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    Text(
-                      '${info['sessions']} (${info['duration']})',
+                    // Note: Translate both the sessions and duration
+                    TranslateText(
+                      info['sessions'],
                       style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                     ),
                   ],
@@ -223,7 +231,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
           const Divider(),
           Row(
             children: [
-              const Expanded(child: Text('Selected Date')),
+              Expanded(child: TranslateText('selectedDate')),
               Text(
                 '${selectedDate.toLocal().toString().split(' ')[0]}',
                 style: const TextStyle(fontWeight: FontWeight.w500),
@@ -233,17 +241,17 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Expanded(child: Text('Service Fee')),
-              const Text(
-                'Included',
-                style: TextStyle(color: Colors.grey),
+              Expanded(child: TranslateText('serviceFee')),
+              TranslateText(
+                'included',
+                style: const TextStyle(color: Colors.grey),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Expanded(child: Text('VAT (included)')),
+              Expanded(child: TranslateText('vatIncluded')),
               Text(
                 '€${(info['price'] * 0.2).toStringAsFixed(2)}',
                 style: const TextStyle(color: Colors.grey),
@@ -253,10 +261,10 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
           const Divider(),
           Row(
             children: [
-              const Expanded(
-                child: Text(
-                  'Total',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              Expanded(
+                child: TranslateText(
+                  'total',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
               Text(
@@ -272,9 +280,11 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset('assets/icons/logo.png', height: 40),
+        title: TranslateText('checkout'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -283,9 +293,9 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Checkout',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              TranslateText(
+                'checkout',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
@@ -303,9 +313,9 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                 onChanged: (val) {
                   setState(() => agreedToTerms = val ?? false);
                 },
-                title: const Text(
-                  'I have read and approved the Terms and Privacy Policy',
-                  style: TextStyle(fontSize: 14),
+                title: TranslateText(
+                  'userTermsCheckout',
+                  style: const TextStyle(fontSize: 14),
                 ),
                 controlAffinity: ListTileControlAffinity.leading,
                 activeColor: AppColors.primary,
@@ -321,13 +331,13 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
-                  children: const [
-                    Icon(Icons.lock, color: Colors.grey, size: 16),
-                    SizedBox(width: 8),
+                  children: [
+                    const Icon(Icons.lock, color: Colors.grey, size: 16),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        'All payments are secure and encrypted. Credit card information is never stored on our servers.',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      child: TranslateText(
+                        'securityNotice',
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ),
                   ],
@@ -357,9 +367,9 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                       strokeWidth: 2,
                     ),
                   )
-                      : const Text(
-                    'Pay Securely',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      : TranslateText(
+                    'paySecurely',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

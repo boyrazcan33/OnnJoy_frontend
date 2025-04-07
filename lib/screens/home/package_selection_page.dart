@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../app_router.dart'; // <- added this
+import 'package:provider/provider.dart';
+import '../../app_router.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/translate_text.dart';
 
 class PackageSelectionPage extends StatefulWidget {
   const PackageSelectionPage({Key? key}) : super(key: key);
@@ -37,12 +40,14 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
   }
 
   Widget _buildPackageCard({
-    required String title,
-    required String price,
-    required String description,
+    required String translationKey,
+    required String priceKey,
+    required String descriptionKey,
     required String value,
     required bool popular,
   }) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -78,16 +83,22 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                   color: Colors.amber,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  '⭐ Best Choice',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                child: TranslateText(
+                  'bestChoice',
+                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 ),
               ),
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            TranslateText(
+                translationKey,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+            ),
             const SizedBox(height: 4),
-            Text(price, style: const TextStyle(fontSize: 16, color: Colors.teal)),
+            TranslateText(
+                priceKey,
+                style: const TextStyle(fontSize: 16, color: Colors.teal)
+            ),
             const SizedBox(height: 8),
-            Text(description),
+            TranslateText(descriptionKey),
           ],
         ),
       ),
@@ -96,48 +107,47 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset('assets/icons/logo.png', height: 40),
+        title: TranslateText('selectPackage'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             _buildPackageCard(
-              title: '🟢 Instant Support',
-              price: '€29 / session',
-              description:
-              '20-minute session. Ideal for sudden challenges or quick emotional relief.',
+              translationKey: 'packageSingle',
+              priceKey: 'packageSinglePrice',
+              descriptionKey: 'packageSingleDesc',
               value: 'single',
               popular: false,
             ),
             _buildPackageCard(
-              title: '🔵 Monthly Wellness Pack',
-              price: '€79 / month',
-              description:
-              'One session weekly. Perfect for steady, step-by-step emotional balance.',
+              translationKey: 'packageMonthly',
+              priceKey: 'packageMonthlyPrice',
+              descriptionKey: 'packageMonthlyDesc',
               value: 'monthly',
               popular: false,
             ),
             _buildPackageCard(
-              title: '🌟 Monthly Intensive Boost',
-              price: '€129 / month',
-              description:
-              'Two sessions weekly. Best for deep healing & fast progress.',
+              translationKey: 'packageIntensive',
+              priceKey: 'packageIntensivePrice',
+              descriptionKey: 'packageIntensiveDesc',
               value: 'intensive',
               popular: true,
             ),
             const SizedBox(height: 8),
-            const Text(
-              '* You can send a 1000-character message to guide your therapist before the meeting.',
-              style: TextStyle(fontSize: 13, color: Colors.black54),
+            TranslateText(
+              'preSessionMessage',
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
             const Spacer(),
             Center(
               child: ElevatedButton(
                 onPressed: selectedPackage != null ? _confirmPurchase : null,
-                child: const Text('Purchase'),
+                child: TranslateText('purchase'),
               ),
             )
           ],

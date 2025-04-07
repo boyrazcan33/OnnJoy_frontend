@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../utils/api_endpoints.dart';
+import '../../widgets/common/translate_text.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
@@ -117,9 +119,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset('assets/icons/logo.png', height: 40),
+        title: TranslateText('notifications'),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -134,7 +138,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             const SizedBox(height: 8),
             TextButton(
               onPressed: _markAllRead,
-              child: const Text('Mark All Read'),
+              child: TranslateText('markAllRead'),
             ),
             const SizedBox(height: 16),
 
@@ -155,28 +159,28 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
 
             const SizedBox(height: 16),
-            const Text('Enter pre-session mail:'),
+            TranslateText('enterPreSessionMail'),
             const SizedBox(height: 8),
             TextField(
               controller: _preSessionController,
               maxLength: 1000,
               maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'Write something for your therapist...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: languageProvider.translate('writeForTherapist'),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
 
             ElevatedButton(
               onPressed: _savePreSessionMessage,
-              child: const Text('Save Message'),
+              child: TranslateText('saveMessage'),
             ),
             const SizedBox(height: 12),
 
             ElevatedButton(
               onPressed: _handleJoinAppointment,
-              child: const Text('Join Appointment'),
+              child: TranslateText('joinAppointment'),
             ),
           ],
         ),

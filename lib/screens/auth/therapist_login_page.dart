@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'dart:convert';
 
 import '../../utils/api_endpoints.dart';
 import '../../utils/constants.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
+import '../../widgets/common/translate_text.dart';
+import '../../providers/language_provider.dart';
 import '../../app_router.dart';
 
 class TherapistLoginPage extends StatefulWidget {
@@ -68,6 +71,8 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       backgroundColor: AppColors.lightPink,
       body: SafeArea(
@@ -79,15 +84,15 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
               children: [
                 Image.asset('assets/icons/logo.png', height: 60),
                 const SizedBox(height: 24),
-                const Text(
-                  'If you are an OnnJoy therapist',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                TranslateText(
+                  'ifYouAreTherapist',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 CustomTextField(
-                  label: 'Email',
-                  hintText: 'Enter your email',
+                  label: languageProvider.translate('email'),
+                  hintText: languageProvider.translate('email'),
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   validator: (val) =>
@@ -95,8 +100,8 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  label: 'Password',
-                  hintText: 'Enter your password',
+                  label: languageProvider.translate('password'),
+                  hintText: languageProvider.translate('password'),
                   controller: _password,
                   isPassword: true,
                   obscureText: true,
@@ -105,7 +110,7 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: 'Login as a Therapist',
+                  text: languageProvider.translate('loginAsTherapist'),
                   onPressed: _loginTherapist,
                   isLoading: _isLoading,
                 ),
@@ -121,7 +126,7 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
                     context,
                     AppRoutes.signup,
                   ),
-                  child: const Text('Back'),
+                  child: TranslateText('back'),
                 ),
               ],
             ),

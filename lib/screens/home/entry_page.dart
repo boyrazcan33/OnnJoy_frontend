@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/translate_text.dart';
 import '../../utils/api_endpoints.dart';
 import '../../app_router.dart';
 
@@ -69,6 +71,7 @@ class _EntryPageState extends State<EntryPage> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final anonName = auth.user?.anonUsername ?? 'User';
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -92,16 +95,18 @@ class _EntryPageState extends State<EntryPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Hello $anonName',
+                // Example of using parameters in translations
+                TranslateText(
+                  'helloUser',
+                  params: {'username': anonName},
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Type in an entry to find the best therapist match. We give you two options among many therapists.',
+                TranslateText(
+                  'entryPrompt',
                 ),
                 const SizedBox(height: 24),
                 Expanded(
@@ -110,7 +115,7 @@ class _EntryPageState extends State<EntryPage> {
                     maxLength: maxChars,
                     maxLines: null,
                     decoration: InputDecoration(
-                      hintText: 'Write your thoughts here...',
+                      hintText: languageProvider.translate('writeThoughts'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -129,8 +134,9 @@ class _EntryPageState extends State<EntryPage> {
                 const SizedBox(height: 4),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: Text(
-                    '${maxChars - _entry.text.length} characters left',
+                  child: TranslateText(
+                    'characterLeft',
+                    params: {'count': (maxChars - _entry.text.length).toString()},
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
@@ -147,7 +153,7 @@ class _EntryPageState extends State<EntryPage> {
                     onPressed: _isLoading ? null : _submitEntry,
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Submit'),
+                        : TranslateText('submit'),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -160,7 +166,7 @@ class _EntryPageState extends State<EntryPage> {
                           (route) => false,
                     );
                   },
-                  child: const Text('Sign Out'),
+                  child: TranslateText('signOut'),
                 ),
               ],
             ),
