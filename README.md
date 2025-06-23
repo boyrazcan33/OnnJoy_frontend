@@ -2,7 +2,7 @@
 
 ## 🎥 Demo Video
 
-<a href="https://vimeo.com/1073099828" target="_blank">
+<a href="https://vimeo.com/1095649673"_blank">
   <img src="./assets/Screenshot_20250407_074318.png" alt="Watch the Demo" width="400"/>
 </a>
 
