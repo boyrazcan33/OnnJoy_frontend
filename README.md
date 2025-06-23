@@ -4,7 +4,7 @@
 ## 🎥 Demo Video
 
 <a href="https://vimeo.com/1095649673" target="_blank">
-  <img src="Screenshot_20250407_074442.png" alt="Watch the Demo" width="350"/>
+  <img src="./assets/Screenshot_20250407_074318.png" alt="Watch the Demo" width="400"/>
 </a>
 
 
