@@ -8,6 +8,7 @@ import '../../app_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/api_endpoints.dart';
 import '../../utils/debug_utils.dart';
+import '../../utils/therapist_image_utils.dart';
 
 class TherapistProfilePage extends StatefulWidget {
   const TherapistProfilePage({Key? key}) : super(key: key);
@@ -20,8 +21,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
   bool isLoading = true;
   Map<String, dynamic>? therapistData;
   String? error;
-
-  // Store the original match data
   Map<String, dynamic>? matchData;
 
   @override
@@ -30,25 +29,20 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
     _processArguments();
   }
 
-  // Process the arguments and fetch the full therapist details
   void _processArguments() {
-    // Get match data from route arguments
     final arguments = ModalRoute.of(context)?.settings.arguments;
     DebugLogger.log("TherapistProfilePage: Received arguments type: ${arguments.runtimeType}", tag: "TherapistProfile");
     DebugLogger.log("TherapistProfilePage: Received arguments: $arguments", tag: "TherapistProfile");
 
     if (arguments is Map<String, dynamic>) {
-      // Store the match data for displaying basic info immediately
       matchData = Map<String, dynamic>.from(arguments);
       DebugLogger.logMap("TherapistProfilePage: Valid match data received", matchData!, tag: "TherapistProfile");
 
-      // Update UI with the match data while we fetch full details
       setState(() {
         therapistData = matchData;
         isLoading = false;
       });
 
-      // Then fetch full therapist details from API
       _fetchFullTherapistDetails();
     } else {
       DebugLogger.log("TherapistProfilePage: Invalid arguments received: $arguments", tag: "TherapistProfile", important: true);
@@ -59,7 +53,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
     }
   }
 
-  // Fetch complete therapist details from the API
   Future<void> _fetchFullTherapistDetails() async {
     if (matchData == null) {
       DebugLogger.log("TherapistProfilePage: No match data to fetch details from", tag: "TherapistProfile", important: true);
@@ -81,10 +74,8 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
     });
 
     try {
-      // First try to use therapist_id directly
       int? therapistId;
 
-      // Try every possible way to get the therapist ID
       if (matchData!.containsKey('therapist_id')) {
         final dynamic rawId = matchData!['therapist_id'];
         if (rawId is int) {
@@ -140,20 +131,16 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
         final fullData = jsonDecode(response.body);
         DebugLogger.logMap("Full therapist data received", fullData, tag: "TherapistProfile");
 
-        // Combine the match data (for match score) with the full details
         final Map<String, dynamic> combinedData = Map<String, dynamic>.from(fullData);
 
-        // Make sure to keep the match score from the original match data
         if (matchData!.containsKey('match_score')) {
           combinedData['match_score'] = matchData!['match_score'];
         }
 
-        // Ensure the therapist_id is set in combined data
         if (!combinedData.containsKey('id') && therapistId != null) {
           combinedData['id'] = therapistId;
         }
 
-        // If not already present, also set therapist_id separately
         if (!combinedData.containsKey('therapist_id') && therapistId != null) {
           combinedData['therapist_id'] = therapistId;
         }
@@ -164,7 +151,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
         });
       } else {
         DebugLogger.log("Error response: ${response.body}", tag: "TherapistProfile", important: true);
-        // In case of error, keep using the match data but show an error message
         setState(() {
           error = 'Could not fetch complete therapist details. Status: ${response.statusCode}';
           isLoading = false;
@@ -177,17 +163,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
         isLoading = false;
       });
     }
-  }
-
-  // Helper function to get profile image - Using the same logic as TherapistMatchesPage
-  String getProfileImage(Map<String, dynamic> data) {
-    final String fullName = data['full_name'] as String? ?? 'Therapist';
-    final int nameHash = fullName.hashCode;
-    final int matchScore = (data['match_score'] is num)
-        ? (data['match_score'] * 100).round()
-        : 0;
-    final int imageNumber = 1 + ((nameHash + matchScore) % 14);
-    return 'assets/person/therapist$imageNumber.jpg';
   }
 
   @override
@@ -227,12 +202,11 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
               children: [
                 const SizedBox(height: 16),
 
-                // Profile picture
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.teal,
                   backgroundImage: therapistData != null
-                      ? AssetImage(getProfileImage(therapistData!))
+                      ? AssetImage(TherapistImageUtils.getProfileImage(therapistData!))
                       : null,
                   onBackgroundImageError: (_, __) {},
                   child: Text(
@@ -244,7 +218,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
                 ),
                 const SizedBox(height: 12),
 
-                // Name
                 Text(
                   therapistData?['full_name'] ?? 'Therapist',
                   style: const TextStyle(
@@ -253,7 +226,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
                   ),
                 ),
 
-                // Show loading message if we're still fetching full details
                 if (isLoading)
                   const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -263,7 +235,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
                     ),
                   ),
 
-                // Show error if there was a problem getting full details
                 if (error != null)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -275,13 +246,10 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
 
                 const SizedBox(height: 16),
 
-                // Book slot button
                 ElevatedButton(
                   onPressed: () {
-                    // Get the therapist ID to pass to the calendar page
                     int? therapistId;
 
-                    // Try all possible sources of the ID
                     if (therapistData?.containsKey('therapist_id') ?? false) {
                       final dynamic rawId = therapistData!['therapist_id'];
                       if (rawId is int) {
@@ -308,7 +276,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
                     if (therapistId != null) {
                       DebugLogger.log("Navigating to calendar with ID: $therapistId", tag: "TherapistProfile");
 
-                      // Direct push with MaterialPageRoute to ensure args are passed
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -335,7 +302,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
 
                 const SizedBox(height: 24),
 
-                // Bio section
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -357,7 +323,6 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
                             textAlign: TextAlign.center,
                           ),
 
-                          // Show match score if available
                           if (therapistData?['match_score'] != null) ...[
                             const SizedBox(height: 24),
                             const Text(

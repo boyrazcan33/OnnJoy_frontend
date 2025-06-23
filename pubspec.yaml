@@ -70,7 +70,8 @@ flutter:
   assets:
     - assets/icons/
     - assets/flags/
-    - assets/person/
+    - assets/person/female/
+    - assets/person/male/
     - assets/background/
     - assets/i18n/en.json
     - assets/i18n/et.json

@@ -8,7 +8,8 @@ import '../../providers/language_provider.dart';
 import '../../utils/api_endpoints.dart';
 import '../../app_router.dart';
 import '../../utils/debug_utils.dart';
-import '../home/therapist_profile_page.dart';  // Direct import for navigation
+import '../../utils/therapist_image_utils.dart';
+import '../home/therapist_profile_page.dart';
 import '../../widgets/common/translate_text.dart';
 
 class TherapistMatchesPage extends StatefulWidget {
@@ -65,10 +66,8 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   }
 
   void _viewTherapistBio(Map<String, dynamic> match) {
-    // Log the match data to verify it contains the needed information
     DebugLogger.logMap("Viewing therapist bio for", match, tag: "TherapistMatches");
 
-    // OPTION 1: Use direct navigation with MaterialPageRoute (recommended)
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -76,32 +75,11 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
         settings: RouteSettings(arguments: match),
       ),
     );
-
-    // OPTION 2: If the above doesn't work, try this alternative
-    /*
-    // Deep copy the match data to prevent reference issues
-    final Map<String, dynamic> therapistData = Map<String, dynamic>.from(match);
-
-    // Make sure these key parameters exist and are correct
-    if (!therapistData.containsKey('therapist_id') && therapistData.containsKey('id')) {
-      therapistData['therapist_id'] = therapistData['id'];
-    } else if (!therapistData.containsKey('therapist_id') && therapistData.containsKey('rank')) {
-      // Only as a fallback
-      therapistData['therapist_id'] = therapistData['rank'];
-    }
-
-    Navigator.pushNamed(
-      context,
-      AppRoutes.therapistProfile,
-      arguments: therapistData,
-    );
-    */
   }
 
   @override
   Widget build(BuildContext context) {
     final anonName = Provider.of<AuthProvider>(context).user?.anonUsername ?? 'User';
-    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -150,19 +128,6 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
   }
 
   Widget _buildMatchCard(Map<String, dynamic> match) {
-    final languageProvider = Provider.of<LanguageProvider>(context);
-
-    // Calculate image number based on therapist data
-    String getProfileImage() {
-      final String fullName = match['full_name'] as String? ?? 'Therapist';
-      final int nameHash = fullName.hashCode;
-      final int matchScore = (match['match_score'] is num)
-          ? (match['match_score'] * 100).round()
-          : 0;
-      final int imageNumber = 1 + ((nameHash + matchScore) % 14);
-      return 'assets/person/therapist$imageNumber.jpg';
-    }
-
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
@@ -199,11 +164,6 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
                     ),
                   ],
                 ),
-                // Uncomment for debugging
-                // Text(
-                //   'ID: ${match['therapist_id']}',
-                //   style: const TextStyle(fontSize: 12, color: Colors.grey),
-                // ),
               ],
             ),
           ),
@@ -212,7 +172,7 @@ class _TherapistMatchesPageState extends State<TherapistMatchesPage> {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.teal,
-                backgroundImage: AssetImage(getProfileImage()),
+                backgroundImage: AssetImage(TherapistImageUtils.getProfileImage(match)),
                 onBackgroundImageError: (_, __) {},
                 child: Text(
                   (match['full_name'] as String? ?? 'T')[0],
