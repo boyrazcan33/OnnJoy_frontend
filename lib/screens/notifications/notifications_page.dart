@@ -75,10 +75,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ),
       );
 
-      // Wait for all requests to complete
       await Future.wait(futures);
 
-      // Update the notification list in the state
       setState(() {
         // Update the 'read' status of all notifications to true
         notifications = notifications.map((n) {

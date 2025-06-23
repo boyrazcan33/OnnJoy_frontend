@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
@@ -64,9 +64,7 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
   Future<void> _payNow() async {
     if (!agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content:
-        TranslateText("pleaseAgreeToTerms")
-        ),
+        SnackBar(content: TranslateText("pleaseAgreeToTerms")),
       );
       return;
     }
@@ -88,10 +86,26 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
 
       if (response.statusCode == 200) {
         final url = response.body.replaceAll('"', '');
-        final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(
+                title: const Text('Payment'),
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              body: WebViewWidget(
+                controller: WebViewController()
+                  ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                  ..loadRequest(Uri.parse(url)),
+              ),
+            ),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: TranslateText("paymentFailed")),
@@ -214,7 +228,6 @@ class _PaymentCheckoutPageState extends State<PaymentCheckoutPage> {
                       info['title'],
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    // Note: Translate both the sessions and duration
                     TranslateText(
                       info['sessions'],
                       style: TextStyle(color: Colors.grey.shade700, fontSize: 14),

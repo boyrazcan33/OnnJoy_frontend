@@ -67,7 +67,7 @@ class AuthService {
     }
   }
 
-  // New method to update user's language preference
+  // New method to update user  s language preference
   Future<bool> updateLanguage({
     required String language,
     required String token,

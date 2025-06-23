@@ -9,10 +9,8 @@ import 'utils/constants.dart';
 import 'app_router.dart';
 
 void main() async {
-  // Ensure Flutter is initialized before accessing native code
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Create and initialize language provider
   final languageProvider = LanguageProvider();
   await languageProvider.initialize();
 

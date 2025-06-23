@@ -120,7 +120,7 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
         Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
+          'Accept': 'application/json; charset=utf-8',
         },
       );
 
@@ -128,25 +128,26 @@ class _TherapistProfilePageState extends State<TherapistProfilePage> {
       DebugLogger.log("Therapist API response body: ${response.body}", tag: "TherapistProfile");
 
       if (response.statusCode == 200) {
-        final fullData = jsonDecode(response.body);
+        final responseBody = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> fullData = jsonDecode(responseBody);
         DebugLogger.logMap("Full therapist data received", fullData, tag: "TherapistProfile");
 
-        final Map<String, dynamic> combinedData = Map<String, dynamic>.from(fullData);
+        final Map<String, dynamic> therapistInfo = Map<String, dynamic>.from(fullData);
 
         if (matchData!.containsKey('match_score')) {
-          combinedData['match_score'] = matchData!['match_score'];
+          therapistInfo['match_score'] = matchData!['match_score'];
         }
 
-        if (!combinedData.containsKey('id') && therapistId != null) {
-          combinedData['id'] = therapistId;
+        if (!therapistInfo.containsKey('id') && therapistId != null) {
+          therapistInfo['id'] = therapistId;
         }
 
-        if (!combinedData.containsKey('therapist_id') && therapistId != null) {
-          combinedData['therapist_id'] = therapistId;
+        if (!therapistInfo.containsKey('therapist_id') && therapistId != null) {
+          therapistInfo['therapist_id'] = therapistId;
         }
 
         setState(() {
-          therapistData = combinedData;
+          therapistData = therapistInfo;
           isLoading = false;
         });
       } else {

@@ -34,7 +34,6 @@ class LanguageProvider extends ChangeNotifier {
       // Use saved language or default
       _currentLanguage = prefs.getString('language') ?? defaultLang;
 
-      // Load translations
       await loadTranslations();
       _isLoaded = true;
       notifyListeners();
@@ -43,7 +42,6 @@ class LanguageProvider extends ChangeNotifier {
     }
   }
 
-  // Change the app language
   Future<void> setLanguage(String langCode, {String? token}) async {
     if (_currentLanguage == langCode) return;
 

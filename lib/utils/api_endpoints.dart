@@ -1,6 +1,9 @@
 class ApiConfig {
-  // Connect to Spring backend running locally
-  static const String baseUrl = 'http://localhost:8080';
+  // Connect to Spring backend running locally(for chrome etc, use this !!!)
+  // static const String baseUrl = 'http://localhost:8080';
+  // Change from localhost to emulator IP
+  static const String baseUrl = 'http://10.0.2.2:8080';
+
 }
 
 class AuthEndpoints {

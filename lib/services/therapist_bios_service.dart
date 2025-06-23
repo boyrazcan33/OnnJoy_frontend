@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import '../utils/api_endpoints.dart';
 
 class TherapistService {
-  // Fetch therapist details by therapist ID
   Future<Map<String, dynamic>> getTherapistById(int therapistId, String token) async {
     final Uri url = Uri.parse(TherapistEndpoints.getTherapistDetails(therapistId));
 
@@ -75,7 +74,7 @@ class TherapistService {
     } catch (e) {
       debugPrint('Error with direct therapist lookup: $e');
 
-      // If that fails, try interpreting the ID as a rank
+      // If that fails, try interpreting the id as a rank
       try {
         return await getTherapistFromMatch(id, token);
       } catch (e2) {

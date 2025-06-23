@@ -8,12 +8,10 @@ class TherapistProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  // Getters
   Map<String, dynamic>? get selectedTherapist => _selectedTherapist;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Set therapist data directly (from match card)
   void setSelectedTherapist(Map<String, dynamic> therapistData) {
     debugPrint("TherapistProvider: Setting therapist data: $therapistData");
 

@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import '../utils/api_endpoints.dart';
 
 class LanguageService {
-  // Update user's language preference in the backend
   Future<bool> updateUserLanguage({
     required String language,
     required String token,

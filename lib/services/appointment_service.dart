@@ -4,7 +4,6 @@ import '../models/appointment.dart';
 import '../utils/api_endpoints.dart';
 
 class AppointmentService {
-  /// Fetches appointments for the logged-in user
   Future<List<Appointment>> getAppointments(String token) async {
     final response = await http.get(
       Uri.parse(UserEndpoints.appointments),
@@ -21,7 +20,6 @@ class AppointmentService {
     }
   }
 
-  /// Books appointments for selected dates based on the package type
   Future<void> bookAppointments({
     required int userId,
     required int therapistId,

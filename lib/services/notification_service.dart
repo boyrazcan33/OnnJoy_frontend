@@ -4,7 +4,6 @@ import '../models/notification.dart';
 import '../utils/api_endpoints.dart';
 
 class NotificationService {
-  /// Fetches all notifications for the current user
   Future<List<AppNotification>> getUserNotifications(String token) async {
     final response = await http.get(
       Uri.parse(NotificationEndpoints.all),

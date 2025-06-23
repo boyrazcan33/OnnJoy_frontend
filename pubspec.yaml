@@ -33,13 +33,16 @@ dependencies:
   table_calendar: ^3.0.9
   url_launcher: ^6.2.1
   intl: ^0.19.0
-  agora_rtc_engine: ^6.2.0
+  agora_rtc_engine: ^6.3.2
   permission_handler: ^11.0.1
   provider: ^6.0.5
   http: ^0.13.6
   shared_preferences: ^2.2.1
   flutter_secure_storage: ^9.0.0
-  flutter_localizations:  # Add this for localization support
+  webview_flutter: ^4.4.2
+
+  flutter_localizations:
+
     sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
